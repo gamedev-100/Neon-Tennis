@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Court Tennis</title>
+<style>
+:root{--bg:#07121d;--panel:#102333;--panel2:#163247;--lime:#b9ff68;--cyan:#62e8ff;--text:#f4fbff;--muted:#a8bfce;--pink:#ff78b7;--red:#ff4848;--gold:#ffce69}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#16384a 0%,#07121d 62%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}button{font:inherit;border:0;border-radius:12px;padding:11px 16px;font-weight:800;color:#07121d;background:var(--lime);cursor:pointer;transition:transform .12s,filter .12s}button:hover{filter:brightness(1.1);transform:translateY(-1px)}button.secondary{background:#244457;color:var(--text);border:1px solid #3a6174}button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+header{max-width:1200px;margin:auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.logo{font-size:clamp(1.35rem,3vw,2rem);font-weight:1000;letter-spacing:-1px}.logo span{color:var(--lime)}.wallet{background:#142b3a;border:1px solid #2a4a5c;padding:10px 15px;border-radius:999px;font-weight:900;color:var(--lime)}main{max-width:1200px;margin:0 auto;padding:10px 24px 34px}.screen{display:none}.screen.active{display:block}
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:22px;align-items:stretch}.panel{background:linear-gradient(145deg,rgba(22,50,71,.97),rgba(10,29,43,.97));border:1px solid #2a4b60;border-radius:22px;padding:24px;box-shadow:0 20px 55px #0003}.eyebrow{color:var(--lime);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;font-weight:900}.hero h1{font-size:clamp(2.2rem,6vw,4.6rem);line-height:.98;letter-spacing:-3px;margin:12px 0}.hero p{color:var(--muted);line-height:1.6}.button-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:24px 0 12px}.section-title h2{margin:0;font-size:1.25rem}.mode-category{background:rgba(8,25,37,.36);border:1px solid #24475a;border-radius:18px;padding:2px 16px 18px;margin-top:10px}.mode-category .section-title{margin:18px 0 12px}.mode-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.mode{background:#102b3b;border:1px solid #2a4b60;border-radius:16px;padding:17px;text-align:left;color:var(--text);min-height:140px}.mode strong{display:block;font-size:1.02rem;margin:8px 0}.mode small{color:var(--muted);line-height:1.4}.mode .emoji{font-size:1.7rem}.side-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.stat{background:#0b1e2b;border:1px solid #28475a;border-radius:14px;padding:14px}.stat b{display:block;color:var(--lime);font-size:1.6rem}.stat small{color:var(--muted)}.feature-list{display:grid;gap:12px;margin-top:12px}.feature{display:flex;gap:12px;align-items:flex-start}.feature span{font-size:1.4rem}.feature b{display:block}.feature small{color:var(--muted)}
+.gamebar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.scoreboard{display:flex;gap:12px;align-items:center;background:#102b3b;border:1px solid #2b4d60;border-radius:14px;padding:10px 16px}.scoreboard b{font-size:1.5rem;color:var(--lime)}.scoreboard span{color:var(--muted);font-size:.9rem}.court-wrap{position:relative;background:#07131b;border:1px solid #315469;border-radius:18px;overflow:hidden;box-shadow:0 22px 60px #0005}canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:none}.overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#06121dcc;padding:20px}.overlay.show{display:flex}.overlay-card{max-width:460px;width:100%;background:#102b3b;border:1px solid #4c7183;border-radius:20px;padding:26px;text-align:center}.overlay-card h2{font-size:2rem;margin:0 0 8px}.overlay-card p{color:var(--muted);line-height:1.5}.point-out-card h2{font-size:clamp(3.7rem,10vw,6.3rem);line-height:.95;color:#ff6868;text-shadow:0 0 26px #ff36365c;margin:0 0 14px}.point-out-card .eyebrow{color:#ff8686}.pause-card h2{font-size:clamp(2rem,6vw,3.2rem)}.pause-countdown{font-size:clamp(4rem,15vw,7rem);font-weight:1000;color:var(--lime);line-height:1;margin:12px 0;text-shadow:0 0 28px #b9ff6850}.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.control-card{background:#102333;border:1px solid #25475a;border-radius:14px;padding:12px 15px;color:var(--muted);font-size:.88rem;line-height:1.8}.control-card b{color:var(--text)}kbd{display:inline-block;background:#213f51;border:1px solid #45677a;border-radius:5px;padding:0 5px;color:white;font-family:inherit;font-size:.8rem}
+.abilities-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.ability-card{border:1px solid #2d5267;background:#102b3b;border-radius:16px;padding:16px;min-width:0}.ability-card h3{margin:7px 0}.ability-card p{color:var(--muted);font-size:.9rem;min-height:40px;line-height:1.45}.rarity{font-size:.72rem;font-weight:1000;letter-spacing:1px;text-transform:uppercase}.common{color:#c6d3da}.rare{color:#61c7ff}.epic{color:#d5a0ff}.legendary{color:#ffce69}.godly{color:#ff6666}.owned{border-color:#b9ff68}.godly-card{border-color:#ff4d4d;background:linear-gradient(145deg,#2b151c,#111b28 72%);box-shadow:0 0 20px #ff25251c}.honored-title{color:#fff;background:linear-gradient(90deg,#fff 0%,#aeb8c5 45%,#05070b 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 14px #ffffff19}.sun-title{background:linear-gradient(90deg,#ff3434 0%,#ff8e28 44%,#fff06a 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 16px #ff60302b}.wheel-layout{display:grid;grid-template-columns:250px minmax(220px,1fr) 225px;gap:22px;align-items:center}.wheel{width:230px;height:230px;border-radius:50%;border:8px solid #e6f7ff;box-shadow:0 0 0 5px #24485a,0 10px 30px #0006;background:conic-gradient(from 0deg,#9ae66e 0deg 162deg,#61c7ff 162deg 288deg,#bf8bff 288deg 338.4deg,#ffcf70 338.4deg 356.4deg,#ff4848 356.4deg 360deg);position:relative;margin:auto;transition:transform 2.7s cubic-bezier(.15,.75,.15,1)}.wheel:after{content:"";position:absolute;width:34px;height:34px;border-radius:50%;background:#f5fbff;border:5px solid #102b3b;left:calc(50% - 17px);top:calc(50% - 17px)}.pointer{width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:25px solid var(--lime);margin:0 auto -4px;position:relative;z-index:2}.muted{color:var(--muted)}.notice{min-height:24px;color:var(--lime);font-weight:700;line-height:1.5}.chance-list{display:grid;gap:9px;margin:14px 0}.chance{display:flex;justify-content:space-between;gap:10px;background:#0b1e2b;border:1px solid #28475a;border-radius:10px;padding:9px 11px;font-size:.88rem}.chance span:first-child{font-weight:800}.chance .pct{font-weight:1000}.chance .c-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}.collection-note{color:#8da6b6;font-size:.86rem;line-height:1.5}.footer-note{color:#7993a4;text-align:center;font-size:.8rem;margin:26px 0 0}.cooldown{color:var(--lime);font-size:.9rem;font-weight:800}
+.game-status{min-width:230px}.cooldown-track{height:9px;width:100%;max-width:260px;background:#071721;border:1px solid #34566a;border-radius:999px;overflow:hidden;margin-top:7px}.cooldown-fill{height:100%;width:100%;background:linear-gradient(90deg,#65e6a5,#b9ff68);border-radius:999px;transition:width .08s linear}.cooldown-fill.cooling{background:linear-gradient(90deg,#ff935d,#ffcf69)}.match-tip{margin-top:12px;display:flex;gap:12px;align-items:flex-start;background:linear-gradient(100deg,#122f40,#102333);border:1px solid #30546a;border-radius:13px;padding:13px 16px;color:var(--muted);line-height:1.5}.match-tip strong{color:var(--lime);letter-spacing:1px;font-size:.75rem;white-space:nowrap;padding-top:2px}.match-tip span{color:var(--text)}
+.guide-overlay{position:fixed;inset:0;z-index:1100;display:none;align-items:center;justify-content:center;background:#04101be8;padding:18px}.guide-overlay.show{display:flex}.guide-card{width:min(760px,100%);max-height:min(86vh,900px);overflow:auto;background:linear-gradient(145deg,#18394d,#0b1d2a);border:1px solid #45677a;border-radius:24px;padding:clamp(20px,4vw,32px);box-shadow:0 28px 100px #0009}.guide-card h2{font-size:clamp(1.6rem,4vw,2.25rem);margin:7px 0 12px}.guide-card h3{color:var(--lime);margin:18px 0 6px}.guide-card p,.guide-card li{color:var(--muted);line-height:1.6}.guide-card ul,.guide-card ol{padding-left:22px}.guide-card li{margin:5px 0}.guide-footer{display:flex;justify-content:flex-end;margin-top:18px}.difficulty-overlay{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;background:#04101be8;padding:18px}.difficulty-overlay.show{display:flex}.difficulty-card{width:min(820px,100%);background:linear-gradient(145deg,#18394d,#0b1d2a);border:1px solid #45677a;border-radius:24px;padding:clamp(20px,4vw,32px);box-shadow:0 28px 100px #0009;text-align:center}.difficulty-card h2{font-size:clamp(1.6rem,4vw,2.4rem);margin:8px 0}.difficulty-card p{color:var(--muted);line-height:1.55}.difficulty-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:24px}.difficulty-choice{border-radius:999px;min-height:146px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:2px solid transparent;color:#f4fbff;padding:14px 8px}.difficulty-choice strong{font-size:1.1rem}.difficulty-choice small{font-size:.75rem;line-height:1.3;font-weight:600;color:#e4edf2}.difficulty-choice.easy{background:linear-gradient(145deg,#235f49,#183c35);border-color:#65e6a5}.difficulty-choice.medium{background:linear-gradient(145deg,#265578,#17384d);border-color:#62c8ff}.difficulty-choice.hard{background:linear-gradient(145deg,#674035,#3f2029);border-color:#ff9a75}.difficulty-choice.impossible{background:linear-gradient(145deg,#6937a0,#2b1749);border-color:#db9bff}.difficulty-choice[aria-pressed="true"]{box-shadow:0 0 0 4px #ffffff28,0 0 24px #b9ff6840}.difficulty-actions{display:flex;justify-content:center;margin-top:18px}@media(max-width:650px){.difficulty-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.difficulty-choices{gap:7px}.difficulty-choice{min-height:105px;padding:8px 4px}.difficulty-choice strong{font-size:.98rem}.difficulty-choice small{font-size:.68rem}}
+
+@media(max-width:1000px){.wheel-layout{grid-template-columns:220px 1fr}.chance-panel{grid-column:1/-1}.chance-list{grid-template-columns:repeat(5,1fr)}.chance{display:block;text-align:center}.chance span{display:block}.chance .c-dot{margin:0 5px 0 0}}@media(max-width:850px){.hero{grid-template-columns:1fr}.mode-grid{grid-template-columns:repeat(2,1fr)}.abilities-grid{grid-template-columns:repeat(2,1fr)}.wheel-layout{grid-template-columns:1fr}.chance-panel{grid-column:auto}.chance-list{grid-template-columns:repeat(2,1fr)}.wheel{width:210px;height:210px}}@media(max-width:540px){main{padding:8px 12px 24px}header{padding:16px 12px}.panel{padding:17px}.mode-grid{grid-template-columns:1fr 1fr;gap:8px}.mode{padding:12px;min-height:150px}.controls{grid-template-columns:1fr}.abilities-grid{grid-template-columns:1fr}.hero h1{letter-spacing:-1.5px}.wheel{width:190px;height:190px}.chance-list{grid-template-columns:1fr 1fr}}
+
+/* Bot personalities and prize-reveal animation */
+.bot-name{display:block;font-size:.78rem;font-weight:900;letter-spacing:.3px;color:#f4fbff;opacity:.95}
+.difficulty-choice .difficulty-reward{display:block;margin-top:4px;font-size:.72rem;line-height:1.35;font-weight:900;color:#dfffbf}
+.difficulty-choice.medium .difficulty-reward{color:#c6ebff}.difficulty-choice.hard .difficulty-reward{color:#ffe0d8}
+.difficulty-choice.impossible{background:linear-gradient(145deg,#fff24a,#d7a900 48%,#fff36a);border-color:#fffac2;color:#201900;position:relative;overflow:hidden;isolation:isolate}
+.difficulty-choice.impossible strong,.difficulty-choice.impossible .bot-name,.difficulty-choice.impossible small{color:#281d00;text-shadow:1px 0 #ff3ff3,-1px 0 #36f5ff}
+.difficulty-choice.impossible:before{content:"";position:absolute;inset:-40%;z-index:0;background:repeating-linear-gradient(0deg,transparent 0 7px,#fff7a3 8px 10px,transparent 11px 17px);opacity:.14;animation:verityButtonGlitch .36s steps(2,end) infinite}
+.difficulty-choice.impossible:after{content:"";position:absolute;left:-20%;right:-20%;height:3px;top:20%;z-index:0;background:#ff39d455;animation:veritySlice .9s steps(2,end) infinite}
+.difficulty-choice.impossible>*{position:relative;z-index:1}.difficulty-choice.impossible strong{font-family:ui-monospace,monospace;font-size:.72rem;line-height:1.25;letter-spacing:0;overflow-wrap:anywhere;text-shadow:none}.difficulty-choice.impossible .bot-name,.difficulty-choice.impossible small{font-family:inherit;text-shadow:none}.difficulty-choice.impossible .bot-name{font-size:.68rem}.difficulty-choice.impossible .difficulty-reward{font-size:.66rem}
+@keyframes verityButtonGlitch{0%{transform:translate(0,0)}30%{transform:translate(4px,-2px)}60%{transform:translate(-5px,2px)}100%{transform:translate(2px,1px)}}
+@keyframes veritySlice{0%,100%{top:18%;opacity:.3}45%{top:72%;opacity:.8}70%{top:38%;opacity:.55}}
+.reward-overlay{position:fixed;inset:0;z-index:1500;display:none;align-items:center;justify-content:center;background:#020912ed;padding:18px}
+.reward-overlay.show{display:flex}.reward-dialog{position:relative;width:min(760px,100%);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#17384b,#091823);border:1px solid #53768a;border-radius:24px;padding:25px;box-shadow:0 30px 100px #000b;text-align:center}
+.reward-skip{position:absolute;right:14px;top:14px;z-index:4;background:#2b4b5d;color:#fff;border:1px solid #648092;padding:8px 12px}
+.reward-kicker{color:var(--lime);font-size:.76rem;font-weight:1000;letter-spacing:2px;text-transform:uppercase}
+.rarity-reel-viewport{margin:30px auto 18px;width:min(580px,100%);overflow:hidden;border:1px solid #547789;background:#06131c;border-radius:14px;padding:16px 0;position:relative}
+.rarity-reel-viewport:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:#fff;opacity:.8;z-index:2}
+.rarity-reel{display:flex;width:max-content;gap:16px;align-items:center;white-space:nowrap;will-change:transform}
+.rarity-reel span{font-weight:1000;font-size:1.15rem;padding:10px 17px;border-radius:10px;background:#102b3b;border:1px solid #284c61;min-width:120px}
+.rarity-reel .Common{color:#d7e0e5}.rarity-reel .Rare{color:#61c7ff}.rarity-reel .Epic{color:#d5a0ff}.rarity-reel .Legendary{color:#ffce69}.rarity-reel .Godly{color:#ff6565}
+.gift-scene{display:none;animation:giftPop .4s cubic-bezier(.2,.8,.2,1) both}.gift-scene.show{display:block}@keyframes giftPop{from{opacity:0;transform:scale(.82) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.gift-icon{font-size:5rem;line-height:1.2;filter:drop-shadow(0 0 20px #b9ff6866)}.gift-scene h2{margin:8px 0;font-size:clamp(1.5rem,4vw,2.25rem)}.gift-scene p{color:var(--muted);line-height:1.55}.batch-rewards{display:flex;gap:12px;overflow-x:auto;padding:12px 4px 18px;scroll-snap-type:x mandatory;text-align:left}
+.batch-reward-card{flex:0 0 min(220px,75vw);scroll-snap-align:start;border:1px solid #36596d;background:#0d2432;border-radius:14px;padding:15px}.batch-reward-card h3{margin:6px 0}.batch-reward-card p{font-size:.88rem;margin-bottom:0}.batch-reward-card.duplicate{opacity:.72;border-style:dashed}.roll-controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:12px}.roll-controls button{padding:10px 13px}.roll-controls input{width:95px;min-height:42px;background:#071721;color:#f4fbff;border:1px solid #3c6174;border-radius:10px;padding:8px 10px;font:inherit;font-weight:800}.roll-error{min-height:24px;color:#ff8888;font-weight:800;line-height:1.4}.verity-buff-label{font-size:10px;font-weight:1000;letter-spacing:.6px;fill:#fff278}
+
+
+/* Ability lab: intentionally no physical spinner; keep the roll area roomy. */
+.shop-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(225px,.65fr);gap:30px;align-items:start;padding:clamp(22px,3.5vw,36px)}
+.shop-main{min-width:0;padding-right:4px}
+.shop-title{font-size:clamp(1.8rem,3.4vw,2.65rem);line-height:1.08;margin:10px 0 14px}
+.shop-copy{font-size:1.05rem;line-height:1.75;color:var(--muted);max-width:60rem;margin:0 0 16px}
+.shop-layout .chance-panel{border-left:1px solid #2c4b5c;padding-left:24px}
+.shop-layout .chance{font-size:.96rem;padding:12px 13px}
+.rarity-index{display:grid;grid-template-columns:1fr;gap:22px;margin-top:14px}
+.rarity-index-section{background:linear-gradient(145deg,rgba(16,43,59,.9),rgba(9,27,39,.96));border:1px solid #2d5064;border-radius:18px;padding:18px}
+.rarity-index-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:13px;padding-bottom:10px;border-bottom:1px solid #294a5d}
+.rarity-index-heading h3{margin:0;font-size:1.35rem}
+.rarity-index-heading span{font-size:.86rem;color:var(--muted)}
+.rarity-index-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.index-item{min-width:0;background:#071b28;border:1px solid #29495c;border-radius:12px;padding:12px}
+.index-item h4{font-size:.98rem;margin:6px 0 5px;overflow-wrap:anywhere}
+.index-item p{font-size:.86rem;line-height:1.45;color:var(--muted);margin:0;overflow-wrap:anywhere}
+.index-item .rarity{font-size:.68rem}
+.rarity-index-section.rare-index{border-color:#32739a}
+.rarity-index-section.epic-index{border-color:#8055a8}
+.rarity-index-section.legendary-index{border-color:#a87b2b}
+.rarity-index-section.godly-index{border-color:#a93545;background:linear-gradient(145deg,#24121d,#0b1926 75%)}
+.godly-secret{font-family:ui-monospace,SFMono-Regular,monospace;letter-spacing:1px;color:#ff687c;text-shadow:1px 0 #43f5ff,-1px 0 #ff3fd2;overflow-wrap:anywhere;min-height:1.4em}
+.godly-secret.desc-secret{font-size:.78rem;line-height:1.45;min-height:3.2em}
+@media(max-width:850px){.shop-layout{grid-template-columns:1fr}.shop-layout .chance-panel{border-left:0;border-top:1px solid #2c4b5c;padding-left:0;padding-top:18px}.rarity-index-items{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.shop-layout{padding:18px}.shop-copy{font-size:1rem}.rarity-index-section{padding:13px}.rarity-index-items{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<header><div class="logo">NEON <span>COURT</span> 🎾</div><div class="wallet">◈ <span id="coinCount">0</span> coins</div></header>
+<main>
+<section id="menuScreen" class="screen active">
+ <div class="hero">
+  <div class="panel">
+   <div class="eyebrow">Arcade tennis • Local multiplayer</div><h1>Own the<br><span style="color:var(--lime)">court.</span></h1>
+   <p>Serve, rally, lob, and spike your way to victory. Earn coins against bots, unlock a huge collection of abilities, and challenge a friend on the same keyboard.</p>
+   <div class="button-row"><button class="secondary" onclick="startGame('solo',null,'quick')">Quick match · First to 5</button><button onclick="showScreen('abilitiesScreen')">✦ Unlock abilities</button></div><div class="button-row" style="margin-top:10px"><button class="secondary" onclick="showGuide('serve')">How to Serve</button><button class="secondary" onclick="showGuide('play')">How to Play</button></div>
+   <div class="side-stats"><div class="stat"><b id="winsCount">0</b><small>Bot wins</small></div><div class="stat"><b id="abilityCount">1</b><small>Items unlocked</small></div></div>
+  </div>
+  <div class="panel"><div class="eyebrow">How to play</div><div class="feature-list">
+   <div class="feature"><span>🎾</span><div><b>Time your shots</b><small>Move close to the ball, then hit it across the net.</small></div></div>
+   <div class="feature"><span>⚡</span><div><b>Sprint and dash</b><small>Hold Left Shift to sprint. Press Q to dash. Jump with Space.</small></div></div>
+   <div class="feature"><span>🌙</span><div><b>Mix up your shots</b><small>Use lobs, spikes, and ability-powered returns.</small></div></div>
+   <div class="feature"><span>🏆</span><div><b>Collect the whole roster</b><small>Unlock 40 abilities and two ultra-rare Godly powers.</small></div></div>
+  </div></div>
+ </div>
+ <div class="section-title"><h2>Choose your match</h2><span class="muted">All four modes support both rulesets</span></div>
+ <div class="mode-category">
+  <div class="section-title"><div><h2>Set Gameplay</h2><div class="muted">Classic tennis points: Love, 15, 30, 40. Win 4 games by 2 to take a set.</div></div><span class="muted">Best of 3 sets</span></div>
+  <div class="mode-grid">
+   <button class="mode" onclick="startGame('solo',null,'set')"><span class="emoji">🧍</span><strong>1v1 vs Bot</strong><small>Classic scoring against a bot.</small></button>
+   <button class="mode" onclick="startGame('friend',null,'set')"><span class="emoji">🤝</span><strong>1v1 vs Friend</strong><small>Classic scoring for two players.</small></button>
+   <button class="mode" onclick="startGame('duo',null,'set')"><span class="emoji">👥</span><strong>2v2 Co-op</strong><small>You and a friend against two bots.</small></button>
+   <button class="mode" onclick="startGame('versus',null,'set')"><span class="emoji">⚔️</span><strong>2v2 vs Friend</strong><small>Two players each control a doubles team.</small></button>
+  </div>
+ </div>
+ <div class="mode-category" style="margin-top:25px">
+  <div class="section-title"><div><h2>First to Five</h2><div class="muted">Arcade scoring: win 5 points to win the whole match.</div></div><span class="muted">Fast match</span></div>
+  <div class="mode-grid">
+   <button class="mode" onclick="startGame('solo',null,'quick')"><span class="emoji">⚡</span><strong>1v1 vs Bot</strong><small>First to 5 points. Earn coins against bots.</small></button>
+   <button class="mode" onclick="startGame('friend',null,'quick')"><span class="emoji">🤝</span><strong>1v1 vs Friend</strong><small>First to 5 points with a friend.</small></button>
+   <button class="mode" onclick="startGame('duo',null,'quick')"><span class="emoji">👥</span><strong>2v2 Co-op</strong><small>First to 5 points against two bots.</small></button>
+   <button class="mode" onclick="startGame('versus',null,'quick')"><span class="emoji">⚔️</span><strong>2v2 vs Friend</strong><small>First to 5 points in doubles.</small></button>
+  </div>
+ </div>
+ <div class="panel" style="margin-top:18px;padding:16px 18px">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><b>Progress backup</b><div class="collection-note">Your progress auto-saves. Export a backup occasionally so your collection is safe if your browser resets local file data.</div></div><div class="button-row" style="margin-top:0"><button class="secondary" onclick="exportSave()">Export save</button><button class="secondary" onclick="document.getElementById('importSaveInput').click()">Import save</button><input id="importSaveInput" type="file" accept="application/json,.json" style="display:none" onchange="importSaveFile(event)"></div></div>
+  <p id="saveMessage" class="notice" role="status" style="margin-bottom:0">Progress saves automatically in this browser.</p>
+ </div>
+ <div class="footer-note">Coins, owned items, and equipped choices save in this browser on this device.</div>
+</section>
+
+<section id="abilitiesScreen" class="screen">
+ <div class="gamebar"><div><div class="eyebrow">Build your play style</div><h1 style="margin:5px 0">Ability Lab</h1><div class="muted">Spin for a reward, then equip anything you've unlocked.</div></div><button class="secondary" onclick="showScreen('menuScreen')">← Main menu</button></div>
+ <div class="panel shop-layout">
+  <div class="shop-main">
+   <div class="eyebrow">Ability roll</div>
+   <h2 class="shop-title">Roll for a reward</h2>
+   <p class="shop-copy">Each roll costs 100 coins. Watch the rarity strip move across the screen, then open your gift. Batch rolls skip the reel so you can browse all your rewards together.</p>
+   <div class="roll-controls"><button id="spinButton" onclick="spinWheel()">Roll ×1 · 100 ◈</button><button id="rollFiveButton" class="secondary" onclick="rollBatch(5)">Roll 5 · 500 ◈</button><button id="rollTenButton" class="secondary" onclick="rollBatch(10)">Roll 10 · 1,000 ◈</button></div>
+   <div class="roll-controls"><label for="customRollCount" class="muted">Custom rolls</label><input id="customRollCount" type="number" min="1" max="100" step="1" value="20" inputmode="numeric"><button class="secondary" id="customRollButton" onclick="rollCustomBatch()">Roll this many · skip animation</button></div>
+   <p class="roll-error" id="rollError" role="alert" aria-live="assertive"></p><p class="notice" id="spinNotice" aria-live="polite"></p>
+  </div>
+  <aside class="chance-panel"><div class="eyebrow">Drop chances</div><div class="chance-list">
+   <div class="chance"><span><i class="c-dot" style="background:#9ae66e"></i>Common</span><span class="pct">45%</span></div>
+   <div class="chance"><span><i class="c-dot" style="background:#61c7ff"></i>Rare</span><span class="pct">35%</span></div>
+   <div class="chance"><span><i class="c-dot" style="background:#bf8bff"></i>Epic</span><span class="pct">14%</span></div>
+   <div class="chance"><span><i class="c-dot" style="background:#ffcf70"></i>Legendary</span><span class="pct">5%</span></div>
+   <div class="chance"><span><i class="c-dot" style="background:#ff4848"></i>Godly</span><span class="pct">1%</span></div>
+  </div></aside>
+ </div>
+ <div class="section-title"><h2>Your collection</h2></div>
+ <div id="abilityGrid" class="abilities-grid"></div>
+ <div class="section-title index-heading"><div><h2>Rarity Index</h2><p class="muted">Browse every item by rarity, from Common down to Godly.</p></div></div>
+ <div id="rarityIndex" class="rarity-index" aria-label="All abilities organized by rarity"></div>
+</section>
+
+<section id="gameScreen" class="screen">
+ <div class="gamebar">
+  <div class="scoreboard"><div><span id="teamALabel">YOU · S0 G0</span><br><b id="scoreA">Love</b></div><span>—</span><div><span id="teamBLabel">OPPONENT · S0 G0</span><br><b id="scoreB">Love</b></div></div>
+  <div class="game-status"><span class="muted" id="matchInfo">1v1 • Medium</span><div class="muted" id="serveInfo">Press F to toss the ball</div><div class="cooldown" id="abilityStatus">Ability ready</div><div class="cooldown-track" aria-label="Ability cooldown"><div id="abilityCooldownFill" class="cooldown-fill"></div></div></div>
+  <button class="secondary" onclick="returnToMenu()">Main menu</button>
+ </div>
+ <div class="court-wrap"><canvas id="court" width="960" height="540" aria-label="Tennis game court"></canvas>
+  <div class="overlay" id="gameOverlay"><div class="overlay-card"><div class="eyebrow" id="resultEyebrow">Match complete</div><h2 id="resultTitle">You win!</h2><p id="resultText"></p><div class="button-row" style="justify-content:center"><button onclick="returnToMenu()">Main menu</button><button class="secondary" onclick="restartMatch()">Rematch</button></div></div></div>
+  <div class="overlay" id="pointFeedbackOverlay" aria-live="assertive"><div class="overlay-card point-out-card"><div class="eyebrow">RALLY CALL</div><h2 id="pointFeedbackTitle">OUT!</h2><p id="pointFeedbackText">The ball landed outside the court.</p></div></div>
+  <div class="overlay" id="pauseOverlay" aria-live="polite"><div class="overlay-card pause-card"><div class="eyebrow">COURT PAUSED</div><h2 id="pauseTitle">Paused</h2><p id="pauseMessage">Press P or resume when you are ready.</p><div class="pause-countdown" id="pauseCountdown" style="display:none"></div><div class="button-row" style="justify-content:center"><button id="resumeButton" onclick="resumeGame()">Resume · 3-second countdown</button><button class="secondary" onclick="returnToMenu()">Main menu</button></div></div></div>
+ </div>
+ <div class="controls" id="controlHints"></div>
+ <div class="match-tip" id="matchTip" aria-live="polite"><strong>COURT TIP</strong><span id="matchTipText">Watch the ball and time your shots.</span></div>
+</section>
+</main>
+<div id="difficultyOverlay" class="difficulty-overlay" role="dialog" aria-modal="true" aria-labelledby="difficultyTitle" aria-describedby="difficultySubtitle">
+ <div class="difficulty-card">
+  <div class="eyebrow">Choose your challenge</div>
+  <h2 id="difficultyTitle">Select bot difficulty</h2>
+  <p id="difficultySubtitle">Choose the bot difficulty for the selected ruleset.</p>
+  <div class="difficulty-choices">
+   <button class="difficulty-choice easy" onclick="startPendingBotMatch('easy')"><strong>Easy</strong><em class="bot-name">Moss the Sprout</em><small>Gentle rallies<br>Room to learn</small><small class="difficulty-reward" id="rewardEasy">150 coins / win</small></button>
+   <button class="difficulty-choice medium" onclick="startPendingBotMatch('medium')"><strong>Medium</strong><em class="bot-name">Rally Rivet</em><small>Balanced pace<br>Smart returns</small><small class="difficulty-reward" id="rewardMedium">500 coins / win</small></button>
+   <button class="difficulty-choice hard" onclick="startPendingBotMatch('hard')"><strong>Hard</strong><em class="bot-name">Scarlet Ace</em><small>Fast rallies<br>Sharper placement</small><small class="difficulty-reward" id="rewardHard">1,000 coins / win</small></button>
+   <button class="difficulty-choice impossible" onclick="startPendingBotMatch('impossible')"><strong>V̸̽̌ẽ̴̅r̸̆̔i̴͌͗t̸̆̂y̸͛̄</strong><em class="bot-name">THE GLITCH</em><small>It remembers a defeat.<br>Reality is unstable.</small><small class="difficulty-reward" id="rewardImpossible">3,000–4,000 coins / win</small></button>
+  </div>
+  <p id="difficultyRewardNote" class="muted" style="margin:16px 0 0;font-weight:800">Set Gameplay pays 5× the First to Five win rewards.</p>
+  <div class="difficulty-actions"><button class="secondary" onclick="closeDifficultyPicker()">Cancel</button></div>
+ </div>
+</div>
+<div id="guideOverlay" class="guide-overlay" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+ <div class="guide-card">
+  <div class="eyebrow">Neon Court field guide</div>
+  <h2 id="guideTitle">How to Play</h2>
+  <div id="guideContent"></div>
+  <div class="guide-footer"><button class="secondary" onclick="closeGuide()">Back to menu</button></div>
+ </div>
+</div>
+<div id="rewardOverlay" class="reward-overlay" role="dialog" aria-modal="true" aria-label="Ability reward reveal">
+ <div class="reward-dialog">
+  <button id="skipRevealButton" class="reward-skip" onclick="skipRewardAnimation()">Skip animation ×</button>
+  <div id="reelScene"><div class="reward-kicker">REWARD INCOMING</div><h2>Scanning rarity…</h2><div class="rarity-reel-viewport"><div id="rarityReel" class="rarity-reel"></div></div><p class="muted">A new reward is being revealed.</p></div>
+  <div id="giftScene" class="gift-scene"><div class="gift-icon" id="giftIcon">🎁</div><div class="reward-kicker" id="giftRarity">REWARD</div><h2 id="giftName">Mystery Gift</h2><p id="giftDescription"></p><p id="giftDuplicateNote" class="notice"></p><div id="batchRewards" class="batch-rewards" style="display:none"></div><div class="button-row" style="justify-content:center"><button onclick="closeRewardOverlay()">Continue</button></div></div>
+ </div>
+</div>
+<script>
+"use strict";
+const SAVE_KEY="neonCourtSave_v1";
+
+// Forty abilities: 15 Common, 12 Rare, 8 Epic, and 5 Legendary.
+const abilityData=[
+ {name:"Speedy Shot",rarity:"Common",desc:"Your next shot gets a major speed boost.",effect:"speedyShot"},
+ {name:"Soft Touch",rarity:"Common",desc:"A softer shot that loses speed and drops sooner.",effect:"softTouch"},
+ {name:"Steady Aim",rarity:"Common",desc:"Makes your next shot much more accurate and slightly faster.",effect:"steadyAim"},
+ {name:"Quick Serve",rarity:"Common",desc:"Your next serve or hit gets a small speed boost.",effect:"quickServe"},
+ {name:"Feather Lob",rarity:"Common",desc:"Your next shot rises into a high arc.",effect:"featherLob"},
+ {name:"Light Feet",rarity:"Common",desc:"Move a little faster for a short time.",effect:"lightFeet"},
+ {name:"Safe Return",rarity:"Common",desc:"A controlled shot with a reliable medium pace.",effect:"safeReturn"},
+ {name:"Short Angle",rarity:"Common",desc:"Aim your next shot toward a sharper angle.",effect:"shortAngle"},
+ {name:"Low Skimmer",rarity:"Common",desc:"Keep your next shot low over the court.",effect:"lowSkimmer"},
+ {name:"Bounce Control",rarity:"Common",desc:"Your next shot bounces a little more predictably.",effect:"bounceControl"},
+ {name:"Sharp Reflexes",rarity:"Common",desc:"Recover from your next hit more quickly.",effect:"sharpReflexes"},
+ {name:"Rally Rhythm",rarity:"Common",desc:"A modest speed bonus for your next return.",effect:"rallyRhythm"},
+ {name:"Net Saver",rarity:"Common",desc:"Adds a strong power boost, especially when you attack near the net.",effect:"netSaver"},
+ {name:"Curve Lite",rarity:"Common",desc:"Your next shot visibly bends sideways in flight.",effect:"curveLite"},
+ {name:"Focus Mode",rarity:"Common",desc:"Briefly increases your movement speed.",effect:"focusMode"},
+
+ {name:"Moon Ball",rarity:"Rare",desc:"Launch your next shot in a huge, difficult arc.",effect:"moonBall"},
+ {name:"Quick Step",rarity:"Rare",desc:"Gain a useful burst of movement speed.",effect:"quickStep"},
+ {name:"Curve Shot",rarity:"Rare",desc:"Your next shot sharply bends sideways in flight.",effect:"curveShot"},
+ {name:"Heavy Topspin",rarity:"Rare",desc:"Adds power to a fast, flatter shot.",effect:"heavyTopspin"},
+ {name:"Rocket Serve",rarity:"Rare",desc:"Your next serve starts with extra pace.",effect:"rocketServe"},
+ {name:"Long Reach",rarity:"Rare",desc:"Reach for balls from farther away for a while.",effect:"longReach"},
+ {name:"Sidewinder",rarity:"Rare",desc:"A strong lateral curve can pull opponents wide.",effect:"sidewinder"},
+ {name:"Air Control",rarity:"Rare",desc:"Give your next shot extra height and hang time.",effect:"airControl"},
+ {name:"Afterimage",rarity:"Rare",desc:"Blink a short distance and charge the next hit.",effect:"afterimage"},
+ {name:"Sticky Grip",rarity:"Rare",desc:"A stable shot with reduced drift.",effect:"stickyGrip"},
+ {name:"Ace Finder",rarity:"Rare",desc:"A precise, slightly faster attacking shot.",effect:"aceFinder"},
+ {name:"Backspin Drop",rarity:"Rare",desc:"A slower shot that drops sooner than expected.",effect:"backspinDrop"},
+
+ {name:"Teleportation",rarity:"Epic",desc:"Blink toward the ball to get into position instantly.",effect:"teleportation"},
+ {name:"Mirror Return",rarity:"Epic",desc:"Return the next ball with extra pace and curve.",effect:"mirrorReturn"},
+ {name:"Phantom Step",rarity:"Epic",desc:"Phase forward, leaving you ready to strike.",effect:"phantomStep"},
+ {name:"Gravity Well",rarity:"Epic",desc:"A high, heavy shot that falls sharply.",effect:"gravityWell"},
+ {name:"Thunder Serve",rarity:"Epic",desc:"Charge your next hit with thunderous power.",effect:"thunderServe"},
+ {name:"Comet Shot",rarity:"Epic",desc:"A very fast shot with a bright, aggressive arc.",effect:"cometShot"},
+ {name:"Time Warp",rarity:"Epic",desc:"Move quickly while opposing bots briefly slow down.",effect:"timeWarp"},
+ {name:"Shadow Rally",rarity:"Epic",desc:"A tricky curved shot that is harder for bots to read.",effect:"shadowRally"},
+
+ {name:"Ultimate Spin",rarity:"Legendary",desc:"An extremely fast shot with a strong mid-flight curve.",effect:"ultimateSpin"},
+ {name:"Meteor Smash",rarity:"Legendary",desc:"A devastating, ultra-fast low smash that drives the ball down hard.",effect:"meteorSmash"},
+ {name:"Chrono Break",rarity:"Legendary",desc:"A rapid shot with a strange, unpredictable bend.",effect:"chronoBreak"},
+ {name:"Solar Flare",rarity:"Legendary",desc:"A blazing hit with high speed and a hot arc.",effect:"solarFlare"},
+ {name:"Aether Dash",rarity:"Legendary",desc:"Dash a long way and empower your next return.",effect:"aetherDash"}
+];
+const godlyData=[
+ {name:"Honored One",rarity:"Godly",type:"godly",desc:"For a short time, gain a huge reach, freeze the ball, and unleash extreme speed, power, and spin.",effect:"honoredOne"},
+ {name:"Sun God",rarity:"Godly",type:"godly",desc:"For a short time, move at blazing speed, hit much harder, and reach the ball from far away.",effect:"sunGod"}
+];
+const allItems=[...abilityData,...godlyData];
+const rarityConfig={Common:{chance:45,cooldown:30},Rare:{chance:35,cooldown:30},Epic:{chance:14,cooldown:30},Legendary:{chance:5,cooldown:30},Godly:{chance:1,cooldown:30}};
+const defaultSave={coins:250,wins:0,owned:["Speedy Shot"],equipped:"Speedy Shot",ownedGodly:[],equippedGodly:"Rookie",verityAngry:false};
+const SAVE_BACKUP_KEY="neonCourtSave_backup_v1";
+const SAVE_LEGACY_KEYS=["neonCourtSave_v0","neonCourtSave_v2","neonCourtSave"];
+function normalizeGodlyName(name){return ({"The Honored One":"Honored One","The Sun God":"Sun God"})[name]||name;}
+let save=loadSave();
+function normalizeSaveData(d){
+ if(!d||typeof d!=="object")return null;
+ const rawOwned=Array.isArray(d.owned)?d.owned:Array.isArray(d.ownedAbilities)?d.ownedAbilities:[];
+ const knownAbilities=new Set(abilityData.map(a=>a.name));
+ const knownGodly=new Set(godlyData.map(a=>a.name));
+ const oldGodly=Array.isArray(d.ownedGodly)?d.ownedGodly:(Array.isArray(d.ownedCharacters)?d.ownedCharacters:[]);
+ const migratedGodly=[...oldGodly,...rawOwned.filter(n=>knownGodly.has(normalizeGodlyName(n)))].map(normalizeGodlyName).filter(n=>knownGodly.has(n));
+ const owned=[...new Set(["Speedy Shot",...rawOwned.filter(n=>knownAbilities.has(n))])];
+ const numericCoins=Number(d.coins),numericWins=Number(d.wins);
+ if(!Array.isArray(d.owned)&&!Array.isArray(d.ownedAbilities)&&!Number.isFinite(numericCoins))return null;
+ const equippedGodly=normalizeGodlyName(d.equippedGodly??d.equippedCharacter??"Rookie");
+ const equipped=d.equipped;
+ return {...defaultSave,...d,coins:Number.isFinite(numericCoins)?Math.max(0,Math.floor(numericCoins)):defaultSave.coins,wins:Number.isFinite(numericWins)?Math.max(0,Math.floor(numericWins)):0,owned,ownedGodly:[...new Set(migratedGodly)],equipped:knownAbilities.has(equipped)&&owned.includes(equipped)?equipped:(owned.includes("Speedy Shot")?"Speedy Shot":owned[0]),equippedGodly:migratedGodly.includes(equippedGodly)?equippedGodly:"Rookie",savedAt:Number(d.savedAt)||0};
+}
+function loadSave(){
+ const candidates=[];
+ try{
+  const keys=[SAVE_KEY,SAVE_BACKUP_KEY,...SAVE_LEGACY_KEYS];
+  for(const key of keys){const raw=localStorage.getItem(key);if(!raw)continue;try{const normalized=normalizeSaveData(JSON.parse(raw));if(normalized)candidates.push(normalized);}catch(e){console.warn("Ignoring unreadable save copy:",key);}}
+ }catch(e){console.warn("Browser storage is unavailable; use Export save / Import save to protect progress.",e);}
+ if(!candidates.length)return {...defaultSave,owned:[...defaultSave.owned],ownedGodly:[],savedAt:0};
+ // Never throw away inventory present in another valid copy. Prefer the newest snapshot
+ // for currency/equipment; older pre-timestamp saves are ranked by collection size.
+ const stampMax=Math.max(...candidates.map(c=>c.savedAt));
+ const ranked=[...candidates].sort((a,b)=>{
+  if(stampMax>0&&(a.savedAt||b.savedAt))return (b.savedAt||0)-(a.savedAt||0);
+  return (b.owned.length+b.ownedGodly.length)-(a.owned.length+a.ownedGodly.length);
+ });
+ const chosen=ranked[0];
+ const owned=[...new Set(candidates.flatMap(c=>c.owned))];
+ const ownedGodly=[...new Set(candidates.flatMap(c=>c.ownedGodly))];
+ const equipped=owned.includes(chosen.equipped)?chosen.equipped:(owned.includes("Speedy Shot")?"Speedy Shot":owned[0]);
+ const equippedGodly=ownedGodly.includes(chosen.equippedGodly)?chosen.equippedGodly:"Rookie";
+ return {...chosen,owned,ownedGodly,equipped,equippedGodly};
+}
+function persist(){
+ save.savedAt=Date.now();
+ try{const serialized=JSON.stringify(save);localStorage.setItem(SAVE_KEY,serialized);localStorage.setItem(SAVE_BACKUP_KEY,serialized);setSaveMessage("Progress saved.");}
+ catch(e){console.warn("Could not save progress",e);setSaveMessage("Browser storage could not save. Export a save backup to keep your progress safe.");}
+ updateWallet();
+}
+function setSaveMessage(message){const el=document.getElementById("saveMessage");if(el)el.textContent=message;}
+function exportSave(){
+ try{save.savedAt=Date.now();const blob=new Blob([JSON.stringify(save,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="neon-court-save.json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);setSaveMessage("Save backup exported. Keep the JSON file somewhere safe.");}
+ catch(e){setSaveMessage("Could not export the save in this browser.");console.warn(e);}
+}
+function importSaveFile(event){
+ const file=event.target.files&&event.target.files[0];if(!file)return;
+ const reader=new FileReader();reader.onload=()=>{try{const imported=normalizeSaveData(JSON.parse(String(reader.result)));if(!imported)throw new Error("Invalid save file");
+  // Merge collections instead of allowing an older backup to erase unlocks made later.
+  save.owned=[...new Set([...save.owned,...imported.owned])];save.ownedGodly=[...new Set([...save.ownedGodly,...imported.ownedGodly])];
+  save.coins=Math.max(save.coins,imported.coins);save.wins=Math.max(save.wins,imported.wins);
+  if(save.owned.includes(imported.equipped))save.equipped=imported.equipped;if(save.ownedGodly.includes(imported.equippedGodly))save.equippedGodly=imported.equippedGodly;
+  persist();renderAbilities();setSaveMessage("Save imported and merged with your current collection.");
+ }catch(e){setSaveMessage("That save file could not be read. Choose a Neon Court JSON backup.");console.warn(e);}event.target.value="";};reader.readAsText(file);
+}
+function updateWallet(){document.getElementById("coinCount").textContent=save.coins;document.getElementById("winsCount").textContent=save.wins;document.getElementById("abilityCount").textContent=save.owned.length+save.ownedGodly.length;}
+
+let godlyIndexGlitchTimer=null;
+function showScreen(id){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ if(id==="abilitiesScreen"){
+  renderAbilities();renderRarityIndex();startGodlyIndexGlitch();
+ }else stopGodlyIndexGlitch();
+}
+function titleMarkup(item){if(item.name==="Honored One")return '<span class="honored-title">HONORED ONE</span>';if(item.name==="Sun God")return '<span class="sun-title">SUN GOD</span>';return item.name;}
+
+function renderAbilities(){
+ const grid=document.getElementById("abilityGrid");grid.innerHTML="";
+ const inventory=[...abilityData.filter(a=>save.owned.includes(a.name)),...godlyData.filter(a=>save.ownedGodly.includes(a.name))];
+ if(!inventory.length){grid.innerHTML='<p class="muted">No rewards unlocked yet. Spin the wheel to start collecting.</p>';return;}
+ for(const item of inventory){
+  const isGodly=item.type==="godly",isEquipped=isGodly?save.equippedGodly===item.name:save.equipped===item.name;
+  const card=document.createElement("article");card.className="ability-card owned"+(isGodly?" godly-card":"");
+  const typeLabel=isGodly?"GODLY POWER":item.rarity.toUpperCase()+" ABILITY";
+  const action=isGodly?`equipGodly('${item.name}')`:`equip('${item.name}')`;
+  card.innerHTML=`<div class="rarity ${item.rarity.toLowerCase()}">${typeLabel}${isEquipped?" · EQUIPPED":""}</div><h3>${titleMarkup(item)}</h3><p>${item.desc}</p><button class="${isEquipped?"":"secondary"}" onclick="${action}">${isEquipped?"✓ Equipped":isGodly?"Equip power":"Equip ability"}</button>`;
+  grid.appendChild(card);
+ }
+ renderRarityIndex();
+}
+
+function randomGlitchString(length){
+ const glyphs="█▓▒░╳╬⌁⌇⌖⟁⧖⍟⫷⫸⟊⟟⟒⧫⩙⫰ЖΔλΨϟØЖ〄̸̶̷͛͌͟͢͞͝";
+ let out="";for(let i=0;i<length;i++)out+=glyphs[Math.floor(Math.random()*glyphs.length)];return out;
+}
+function renderRarityIndex(){
+ const root=document.getElementById("rarityIndex");if(!root)return;
+ const sections=[
+  {rarity:"Common",items:abilityData.filter(a=>a.rarity==="Common"),chance:"45%"},
+  {rarity:"Rare",items:abilityData.filter(a=>a.rarity==="Rare"),chance:"35%"},
+  {rarity:"Epic",items:abilityData.filter(a=>a.rarity==="Epic"),chance:"14%"},
+  {rarity:"Legendary",items:abilityData.filter(a=>a.rarity==="Legendary"),chance:"5%"},
+  {rarity:"Godly",items:godlyData,chance:"1%"}
+ ];
+ root.innerHTML="";
+ sections.forEach(group=>{
+  const section=document.createElement("section");section.className="rarity-index-section "+group.rarity.toLowerCase()+"-index";
+  const heading=document.createElement("div");heading.className="rarity-index-heading";
+  heading.innerHTML=`<h3 class="${group.rarity.toLowerCase()}">${group.rarity}</h3><span>${group.chance} chance · ${group.items.length} ${group.rarity==="Godly"?"powers":"abilities"}</span>`;
+  const items=document.createElement("div");items.className="rarity-index-items";
+  group.items.forEach((item,i)=>{
+   const card=document.createElement("article");card.className="index-item";
+   if(group.rarity==="Godly"&&!save.ownedGodly.includes(item.name)){
+    // Do not put the secret power names or descriptions into the rendered DOM before unlock.
+    card.innerHTML=`<div class="rarity godly">GODLY POWER</div><h4 class="godly-secret title-secret" data-secret-length="${Math.floor(12+Math.random()*9)}">${randomGlitchString(18)}</h4><p class="godly-secret desc-secret" data-secret-length="${Math.floor(24+Math.random()*18)}">${randomGlitchString(34)}</p>`;
+   }else{
+    card.innerHTML=`<div class="rarity ${group.rarity.toLowerCase()}">${group.rarity.toUpperCase()}${group.rarity==="Godly"?" POWER":" ABILITY"}</div><h4>${item.name}</h4><p>${item.desc}</p>`;
+   }
+   items.appendChild(card);
+  });
+  section.append(heading,items);root.appendChild(section);
+ });
+}
+function scrambleGodlyIndex(){
+ document.querySelectorAll("#rarityIndex .godly-secret").forEach(el=>{const len=Number(el.dataset.secretLength)||22;el.textContent=randomGlitchString(len);});
+}
+function startGodlyIndexGlitch(){stopGodlyIndexGlitch();scrambleGodlyIndex();godlyIndexGlitchTimer=window.setInterval(()=>{if(document.getElementById("abilitiesScreen")?.classList.contains("active"))scrambleGodlyIndex();else stopGodlyIndexGlitch();},250);}
+function stopGodlyIndexGlitch(){if(godlyIndexGlitchTimer!==null){clearInterval(godlyIndexGlitchTimer);godlyIndexGlitchTimer=null;}}
+
+function equip(name){if(!save.owned.includes(name)){setNotice("You have not unlocked that ability yet.");return;}save.equipped=name;persist();renderAbilities();setNotice(name+" equipped. Press E during a match; cooldowns are long, so time it carefully.");}
+function equipGodly(name){if(!save.ownedGodly.includes(name)){setNotice("You have not unlocked that Godly power yet.");return;}save.equippedGodly=name;persist();renderAbilities();setNotice(name+" equipped.");}
+
+function setNotice(text){const el=document.getElementById("spinNotice");if(el)el.textContent=text;}
+let spinning=false;
+function rollRandomPrize(){
+ const roll=Math.random()*100;let rarity;
+ if(roll<45)rarity="Common";else if(roll<80)rarity="Rare";else if(roll<94)rarity="Epic";else if(roll<99)rarity="Legendary";else rarity="Godly";
+ const pool=rarity==="Godly"?godlyData:abilityData.filter(a=>a.rarity===rarity);
+ return rarity==="Godly"?godlyData[Math.random()<.5?0:1]:pool[Math.floor(Math.random()*pool.length)];
+}
+function grantRoll(prize){
+ const isGodly=prize.type==="godly";const owned=isGodly?save.ownedGodly:save.owned;
+ if(owned.includes(prize.name))return {prize,duplicate:true,unlocked:false};
+ owned.push(prize.name);return {prize,duplicate:false,unlocked:true};
+}
+function setRollingDisabled(disabled){for(const id of ["spinButton","rollFiveButton","rollTenButton","customRollButton"]){const b=document.getElementById(id);if(b)b.disabled=disabled;}}
+function setRollError(message){const el=document.getElementById("rollError");if(el)el.textContent=message;}
+function spinWheel(){
+ if(spinning)return;
+ if(save.coins<100){setRollError("Not enough coins. Each spin costs 100 coins. Win bot matches to earn more.");return;}
+ setRollError("");save.coins-=100;persist();spinning=true;setRollingDisabled(true);
+ const prize=rollRandomPrize(),result=grantRoll(prize);persist();renderAbilities();
+ setNotice("Rolling for a rarity…");showRewardAnimation(result);
+}
+function rollBatch(count){
+ if(spinning)return;
+ count=Number(count);
+ if(!Number.isInteger(count)||count<1||count>100){setRollError("Choose a whole number between 1 and 100.");return;}
+ const totalCost=count*100;
+ if(save.coins<totalCost){setRollError(`Not enough coins for ${count} rolls. You need ${totalCost.toLocaleString("en-US")} coins but have ${save.coins.toLocaleString("en-US")}.`);return;}
+ setRollError("");save.coins-=totalCost;const results=[];
+ for(let i=0;i<count;i++)results.push(grantRoll(rollRandomPrize()));
+ persist();renderAbilities();setNotice(`Completed ${count} rolls. ${results.filter(r=>r.unlocked).length} new unlock(s); duplicates provide no reward.`);
+ spinning=true;setRollingDisabled(true);showBatchResults(results);
+}
+function rollCustomBatch(){const el=document.getElementById("customRollCount");const count=Number(el?.value);rollBatch(count);}
+let rewardAnimationTimer=null,rewardReelStartTimer=null,currentRewardResult=null;
+function showRewardAnimation(result){
+ currentRewardResult=result;
+ const overlay=document.getElementById("rewardOverlay"),reel=document.getElementById("rarityReel"),viewport=reel.parentElement;
+ document.getElementById("reelScene").style.display="block";document.getElementById("giftScene").classList.remove("show");document.getElementById("batchRewards").style.display="none";document.getElementById("skipRevealButton").style.display="block";
+ const rareWords=["Common","Rare","Epic","Legendary","Godly"],targetIndex=12,words=[];
+ for(let i=0;i<29;i++)words.push(rareWords[Math.floor(Math.random()*rareWords.length)]);
+ words[targetIndex]=result.prize.rarity;
+ reel.innerHTML=words.map(w=>`<span class="${w}">${w}</span>`).join("");
+ reel.style.transition="none";reel.style.transform="translate3d(0,0,0)";overlay.classList.add("show");
+ // Measure the winning tile after layout. Start it outside the left side, then move the strip
+ // to the right so the rarity visibly travels left-to-right and settles on the center marker.
+ void reel.offsetWidth;
+ const target=reel.children[targetIndex];
+ const targetCenter=target.offsetLeft+target.offsetWidth/2;
+ const endX=viewport.clientWidth/2-targetCenter;
+ const startX=endX-viewport.clientWidth*1.18;
+ reel.style.transform=`translate3d(${startX}px,0,0)`;void reel.offsetWidth;
+ clearTimeout(rewardAnimationTimer);clearTimeout(rewardReelStartTimer);
+ rewardReelStartTimer=window.setTimeout(()=>{
+  reel.style.transition="transform 2.35s cubic-bezier(.18,.8,.12,1)";
+  reel.style.transform=`translate3d(${endX}px,0,0)`;
+ },35);
+ rewardAnimationTimer=window.setTimeout(()=>showGiftReveal(result),2500);
+}
+function showGiftReveal(result){
+ clearTimeout(rewardAnimationTimer);document.getElementById("reelScene").style.display="none";document.getElementById("skipRevealButton").style.display="none";
+ const scene=document.getElementById("giftScene"),prize=result.prize;
+ document.getElementById("giftIcon").textContent=result.duplicate?"📦":"🎁";
+ document.getElementById("giftRarity").textContent=result.duplicate?"DUPLICATE · "+prize.rarity.toUpperCase():prize.rarity.toUpperCase()+" UNLOCK";
+ document.getElementById("giftName").textContent=prize.name;
+ document.getElementById("giftDescription").textContent=result.duplicate?"You already own this item. This roll gives no reward, refund, or bonus coins.":prize.desc;
+ document.getElementById("giftDuplicateNote").textContent=result.duplicate?"Duplicate — the 100-coin cost remains spent.":(prize.type==="godly"?"A Godly power has joined your collection.":"Added to your collection. You can equip it below.");
+ document.getElementById("batchRewards").style.display="none";scene.classList.remove("show");void scene.offsetWidth;scene.classList.add("show");
+}
+function skipRewardAnimation(){if(!currentRewardResult)return;clearTimeout(rewardAnimationTimer);clearTimeout(rewardReelStartTimer);showGiftReveal(currentRewardResult);}
+function showBatchResults(results){
+ const overlay=document.getElementById("rewardOverlay"),scene=document.getElementById("giftScene"),reelScene=document.getElementById("reelScene"),skip=document.getElementById("skipRevealButton"),batch=document.getElementById("batchRewards");
+ clearTimeout(rewardAnimationTimer);clearTimeout(rewardReelStartTimer);currentRewardResult=null;skip.style.display="none";reelScene.style.display="none";overlay.classList.add("show");
+ document.getElementById("giftIcon").textContent="🎁";document.getElementById("giftRarity").textContent="BATCH OPENED";document.getElementById("giftName").textContent=`${results.length} Rolls Complete`;
+ const unlocked=results.filter(r=>r.unlocked),duplicates=results.filter(r=>r.duplicate).length;
+ document.getElementById("giftDescription").textContent=`${unlocked.length} new unlock(s) · ${duplicates} duplicate(s). Duplicate rolls cost 100 coins and give nothing back.`;
+ document.getElementById("giftDuplicateNote").textContent=unlocked.length?"Scroll horizontally through the new items you unlocked.":"No new items this time. Every result was already in your collection.";
+ batch.style.display="flex";batch.innerHTML=unlocked.map(r=>`<article class="batch-reward-card"><div class="rarity ${r.prize.rarity.toLowerCase()}">${r.prize.rarity.toUpperCase()}</div><h3>${r.prize.name}</h3><p>${r.prize.desc}</p></article>`).join("");
+ if(duplicates){batch.insertAdjacentHTML("beforeend",`<article class="batch-reward-card duplicate"><div class="rarity">DUPLICATES</div><h3>${duplicates} duplicate roll(s)</h3><p>No reward, refund, or bonus coins.</p></article>`);}
+ scene.classList.remove("show");void scene.offsetWidth;scene.classList.add("show");spinning=false;setRollingDisabled(false);renderAbilities();
+}
+function closeRewardOverlay(){clearTimeout(rewardAnimationTimer);clearTimeout(rewardReelStartTimer);document.getElementById("rewardOverlay").classList.remove("show");spinning=false;currentRewardResult=null;setRollingDisabled(false);renderAbilities();updateWallet();}
+
+
+const guideContent={
+ serve:`<p>Serving has a 15-second timer. Stand behind the baseline and aim for the diagonally opposite service box.</p>
+ <ol><li><b>Start the toss:</b> Player 1 presses <kbd>F</kbd>. Player 2 presses <kbd>Shift</kbd> + <kbd>/</kbd> (the <kbd>?</kbd> key).</li><li><b>Wait for the ball to rise:</b> The ball appears slightly in front of your player. Let it rise into a hittable height.</li><li><b>Aim:</b> An arrow moves between the service-box corners. Watch its direction to choose your target corner.</li><li><b>Charge power:</b> Press and hold your hit key while the ball is airborne. The meter fills from green through yellow and orange to red.</li><li><b>Strike:</b> Release the hit key to serve. More charge gives more pace, but aim and timing still matter.</li><li><b>Faults and lets:</b> A serve that lands outside the correct diagonal service box displays <b>OUT</b> for two seconds. A first fault gives you a second serve; a second fault loses the point. If a serve clips the net but lands in the correct box, it is a <b>LET</b> and you serve again on the same attempt.</li></ol>
+ <p>If you do not start a serve within 15 seconds, it counts as a fault. A toss that hits the ground before you strike it also counts as a fault.</p>`,
+ play:`<p>Choose either <b>Set Gameplay</b> or <b>First to Five</b>. All four match modes are available in both categories.</p>
+ <h3>Movement and shots</h3><ul><li><b>Player 1:</b> WASD to move, Space to jump, F to hit (jump first to spike), G to lob, hold Left Shift to sprint, Q to dash, E for your special power.</li><li><b>Player 2:</b> Arrow keys to move, / to jump, ? (Shift + /) to hit or spike while jumping, . to lob, M to sprint, , to dash, Right Shift for special power.</li><li>Move as you hit to influence the direction of your shot. A lob goes higher; a spike travels flatter and faster.</li><li>Stay on your own side of the net. The receiver must let a serve bounce. During rallies, return the ball after at most one bounce.</li></ul>
+ <h3>Scoring</h3><ul><li><b>First to Five:</b> the first team to earn five points wins the match.</li><li><b>Set Gameplay:</b> points use Love, 15, 30, 40, deuce, and advantage. Win four games by two for a set; at 4–4 a tiebreak decides the set. Matches are best of three sets.</li><li>Against bots, select Easy, Medium, or Hard before the match. Wins earn coins, and the Ability Lab uses coins to roll for new abilities.</li></ul>
+ <h3>Special powers</h3><p>Use your equipped ability with its control key. Powers have a long 30-second cooldown, shown by the bar above the court. Godly powers are selected in the Ability Lab and are also activated by the special-power key.</p>`
+};
+function showGuide(kind){const title=document.getElementById("guideTitle"),content=document.getElementById("guideContent");if(!title||!content)return;title.textContent=kind==="serve"?"How to Serve":"How to Play";content.innerHTML=guideContent[kind]||guideContent.play;document.getElementById("guideOverlay").classList.add("show");}
+function closeGuide(){document.getElementById("guideOverlay").classList.remove("show");}
+window.addEventListener("keydown",e=>{if(e.key==="Escape"){closeGuide();closeDifficultyPicker();if(document.getElementById("rewardOverlay")?.classList.contains("show"))closeRewardOverlay();}});
+
+const canvas=document.getElementById("court"),ctx=canvas.getContext("2d");
+const W=960,H=540,court={x:70,y:48,w:820,h:444},netY=270;
+let game=null,keys={},lastTime=0,raf=0,pointFeedbackTimeout=null;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const singlesLeft=()=>court.x+court.w*.12;
+const singlesRight=()=>court.x+court.w*.88;
+function isDoublesMode(){return !!game&&(game.mode==="duo"||game.mode==="versus");}
+function courtXBounds(){return isDoublesMode()?{left:court.x+12,right:court.x+court.w-12}:{left:singlesLeft()+8,right:singlesRight()-8};}
+function playerYBounds(p){return p.team==="A"?{top:netY+24,bottom:court.y+court.h-24}:{top:court.y+24,bottom:netY-24};}
+function clampPlayerToHalf(p){const xb=courtXBounds(),yb=playerYBounds(p);p.x=clamp(p.x,xb.left,xb.right);p.y=clamp(p.y,yb.top,yb.bottom);}
+function ballInBounds(x,y,serve=false){const minX=serve?singlesLeft():courtXBounds().left;const maxX=serve?singlesRight():courtXBounds().right;return x>=minX&&x<=maxX&&y>=court.y&&y<=court.y+court.h;}
+function oppositeTeam(team){return team==="A"?"B":"A";}
+const matchTips=[
+ "Wait for the toss to rise before striking your serve.","Aim your serve diagonally into the opposite service box.","A legal serve must land inside the diagonal service box.","A first serve fault gives you one more attempt; a second fault costs the point.","Stay behind your baseline while serving.","Hold Shift while moving to sprint across your half of the court.","Press Q for a short burst of movement; it does not teleport you.","Move toward the ball before swinging to improve your timing.","Lobs give the ball more height and can buy you time.","Jump, then press F near the ball to spike it downward.","Spikes are faster but travel flatter and have less hang time.","Don't stand too close to the net when defending a deep shot.","Watch the ball's shadow to judge where it will land.","Use the center of your court to recover after a wide shot.","Try aiming toward the opposite corner to move your opponent.","Your special power has a 30-second cooldown, so choose the right moment.","Sun God temporarily boosts speed, shot strength, and reach.","Honored One can freeze a live ball and improve speed, reach, and spin.","On defense, move early instead of waiting for the ball to get close.","In doubles, one player can cover the net while the other guards the back.","After a return, move back toward a balanced position.","Easy bots make mistakes, but they can still reach and return shots.","A ball that lands on your own side after your hit gives the point away.","Try a drop-style or softer shot when your opponent waits far back.","Do not swing while the ball is too far away; get into range first.","After the ball bounces once, you must return it before the next bounce.","Sprint for a short burst, then let go to regain better positioning.","A cross-court serve targets the opposite diagonal service box.","In local multiplayer, each side must stay on its half of the court.","Aiming your return away from a waiting opponent is often more useful than raw power.","Keep your eye on the rally: the last player to hit the ball determines its direction."
+];
+function isLegalServeLanding(b){
+ const serverTeam=b.side,targetRight=b.targetRight;
+ const inX=b.x>=singlesLeft()&&b.x<=singlesRight();
+ // Lines count as in: a serve must land in the correct diagonal service box.
+ const inY=serverTeam==="A"?(b.y>=netY-78&&b.y<=netY):(b.y<=netY+78&&b.y>=netY);
+ const inDiag=targetRight?(b.x>=W/2&&b.x<=singlesRight()):(b.x<=W/2&&b.x>=singlesLeft());
+ return inX&&inY&&inDiag;
+}
+let pendingBotMode=null,pendingScoringMode="set";
+function isBotMode(mode){return mode==="solo"||mode==="duo";}
+const VERITY_NAME="V̸̽̌ẽ̴̅r̸̆̔i̴͌͗t̸̆̂y̸͛̄";
+const botProfiles={easy:{name:"Moss the Sprout",color:"#65e6a5"},medium:{name:"Rally Rivet",color:"#62c8ff"},hard:{name:"Scarlet Ace",color:"#ff6868"},impossible:{name:VERITY_NAME,color:"#fff04a"}};
+function baseWinReward(diff){if(diff==="impossible")return 3000+Math.floor(Math.random()*1001);return ({easy:150,medium:500,hard:1000})[diff]||150;}
+function rewardLabel(diff,scoringMode){if(diff==="impossible")return scoringMode==="set"?"15,000–20,000 coins / win":"3,000–4,000 coins / win";const amount=baseRewardFixed(diff)*(scoringMode==="set"?5:1);return amount.toLocaleString("en-US")+" coins / win";}
+function baseRewardFixed(diff){return ({easy:150,medium:500,hard:1000})[diff]||150;}
+function updateDifficultyRewards(scoringMode){for(const diff of ["easy","medium","hard","impossible"]){const el=document.getElementById("reward"+diff[0].toUpperCase()+diff.slice(1));if(el)el.textContent=rewardLabel(diff,scoringMode);}const p=document.getElementById("difficultyRewardNote");if(p)p.textContent=scoringMode==="set"?"Set Gameplay pays 5× the First to Five win rewards.":"First to Five rewards are shown below each difficulty.";}
+function chooseBotDifficulty(mode,scoringMode="set"){
+ pendingBotMode=mode;pendingScoringMode=scoringMode;
+ const title=document.getElementById("difficultyTitle"),subtitle=document.getElementById("difficultySubtitle");
+ title.textContent=mode==="duo"?"Choose Co-op Bot Difficulty":"Choose Bot Difficulty";
+ const rules=scoringMode==="quick"?"First to Five: the first side to reach 5 points wins.":"Set Gameplay: Love / 15 / 30 / 40 scoring, four games per set, best of three sets.";
+ subtitle.textContent=(mode==="duo"?"You and your friend team up against two bots. Choose the bots’ difficulty. ":"Choose how tough your opponent should be. ")+rules;
+ updateDifficultyRewards(scoringMode);document.getElementById("difficultyOverlay").classList.add("show");
+}
+function closeDifficultyPicker(){document.getElementById("difficultyOverlay").classList.remove("show");pendingBotMode=null;pendingScoringMode="set";}
+function startPendingBotMatch(diff){const mode=pendingBotMode,scoringMode=pendingScoringMode;if(!mode)return;closeDifficultyPicker();startGame(mode,diff,scoringMode);}
+function startGame(mode,diffChoice,scoringMode="set"){
+ if(scoringMode!=="quick")scoringMode="set";
+ if(isBotMode(mode)&&!["easy","medium","hard","impossible"].includes(diffChoice)){chooseBotDifficulty(mode,scoringMode);return;}
+ if(raf)cancelAnimationFrame(raf);
+ document.getElementById("difficultyOverlay").classList.remove("show");pendingBotMode=null;
+ const diff=isBotMode(mode)?diffChoice:"medium";
+ game={mode,diff,scoringMode,pointsA:0,pointsB:0,gamesA:0,gamesB:0,setsA:0,setsB:0,setHistory:[],isTiebreak:false,tiebreakPointsA:0,tiebreakPointsB:0,tiebreakPointCount:0,tiebreakFirstServer:"A",pointOver:false,matchOver:false,paused:false,resumeCountdownUntil:0,serveTeam:"A",serveState:"ready",serveAttempt:1,serveControl:"p1",serveDelay:0,serveActionTimer:0,serveClock:15,serveFeedback:null,serveNetTouched:false,serveSide:0,pointText:"Ready to serve!",messageTimer:1.5,players:[],timeWarpTimer:0,verityBuffs:[],verityPointCount:0,verityStatusText:"",verityMad:!!save.verityAngry,verityCloneCooldown:0,ball:{x:300,y:455,vx:0,vy:0,z:0,vz:0,side:"A",inPlay:false,lastHitter:null,bounces:0,isServe:false,toss:false,freezeTimer:0,freezeVx:0,freezeVy:0,freezeVz:0}};
+ makePlayers();initializeVerityState();setupServe("A");
+ document.getElementById("gameOverlay").classList.remove("show");document.getElementById("pauseOverlay").classList.remove("show");hidePointFeedback();updateScoreboard();
+ document.getElementById("teamALabel").textContent=mode==="versus"?"PLAYER 1 TEAM":"YOU / TEAM";document.getElementById("teamBLabel").textContent=(mode==="friend"||mode==="versus")?"PLAYER 2":"BOTS";
+ document.getElementById("matchInfo").textContent=`${mode==="solo"?"1v1":mode==="friend"?"1v1 FRIEND":mode==="duo"?"2v2 CO-OP":"2v2 FRIEND"} • ${diff[0].toUpperCase()+diff.slice(1)}`;updateScoreboard();
+ const tip=matchTips[Math.floor(Math.random()*matchTips.length)];document.getElementById("matchTipText").textContent=tip;
+ if(game.diff==="impossible"){game.verityStatusText=game.verityBuffs.length?"ACTIVE: "+game.verityBuffs.map(b=>VERITY_BUFF_LABELS[b]).join(" + "):"WATCHING";}
+ document.getElementById("controlHints").innerHTML=(mode==="friend"||mode==="versus")?
+ '<div class="control-card"><b>Player 1</b><br><kbd>W A S D</kbd> move · <kbd>Space</kbd> jump · <kbd>F</kbd> hit / airborne spike · <kbd>G</kbd> lob<br><kbd>Left Shift</kbd> sprint · <kbd>Q</kbd> dash · <kbd>E</kbd> power</div><div class="control-card"><b>Player 2</b><br><kbd>↑ ← ↓ →</kbd> move · <kbd>/</kbd> jump · <kbd>?</kbd> hit / airborne spike (Left Shift + /) · <kbd>.</kbd> lob<br><kbd>/</kbd> jump · <kbd>,</kbd> dash · <kbd>M</kbd> sprint · <kbd>Right Shift</kbd> power</div>' :
+ '<div class="control-card"><b>Your controls</b><br><kbd>W A S D</kbd> move · <kbd>Space</kbd> jump · <kbd>F</kbd> hit / airborne spike · <kbd>G</kbd> lob<br><kbd>Left Shift</kbd> sprint · <kbd>Q</kbd> dash · <kbd>E</kbd> special power</div><div class="control-card"><b>Serving</b><br>Press your hit key once to toss, then press it again while the ball is airborne. During rallies, hit normally on the ground and spike while jumping. Lobs use G for Player 1 and . for Player 2.</div>';
+ showScreen("gameScreen");updateAbilityStatus();lastTime=performance.now();raf=requestAnimationFrame(loop);
+}
+
+function makePlayers(){
+ const g=game;g.players=[];
+ function p(team,idx,x,y,control,bot=false){const profile=botProfiles[g.diff]||botProfiles.medium;const isVerity=bot&&g.diff==="impossible"&&idx===0;return {team,idx,x,y,r:15,control,bot,isVerity,botName:bot?(isVerity?VERITY_NAME:g.diff==="impossible"?"GLITCH ECHO":profile.name):null,baseSpeed:bot?(g.diff==="easy"?150:g.diff==="medium"?190:g.diff==="hard"?208:208):220,hitCooldown:0,swingCooldown:0,flash:0,abilityTimer:0,abilityMax:30,dashCooldown:0,dashTime:0,dashVX:0,dashVY:0,jumpHeight:0,jumpVelocity:0,jumpCooldown:0,botSprintTimer:0,botSprintCooldown:0,botDashCooldown:0,aimX:0,aimY:0,boost:0,reachBoost:0,activeShot:null,godlyEffect:null,godlyTimer:0,clone:false};}
+ if(g.mode==="solo"){g.players.push(p("A",0,300,450,"p1"));g.players.push(p("B",0,660,90,"bot",true));}
+ if(g.mode==="friend"){g.players.push(p("A",0,300,450,"p1"));g.players.push(p("B",0,660,90,"p2"));}
+ if(g.mode==="duo"){g.players.push(p("A",0,300,450,"p1"));g.players.push(p("A",1,650,410,"p1b"));g.players.push(p("B",0,660,90,"bot",true));g.players.push(p("B",1,310,130,"bot2",true));}
+ if(g.mode==="versus"){g.players.push(p("A",0,300,450,"p1"));g.players.push(p("A",1,650,410,"p1b"));g.players.push(p("B",0,660,90,"p2"));g.players.push(p("B",1,310,130,"p2b"));}
+}
+
+const VERITY_BUFFS=["glitchyShots","clone","speedPower"];
+const VERITY_BUFF_LABELS={glitchyShots:"GLITCHY SHOTS",clone:"CLONE",speedPower:"SPEED + POWER"};
+function initializeVerityState(){
+ if(!game)return;
+ game.verityMad=!!save.verityAngry||game.scoringMode==="set";game.verityPointCount=0;game.verityGlitchPulse=0;game.verityCloneCooldown=0;game.verityStatusText="";
+ game.verityBuffs=game.diff==="impossible"&&game.scoringMode==="set"?["glitchyShots"]:(game.diff==="impossible"&&game.verityMad?["glitchyShots"]:[]);
+ game.verityStatusText=game.verityBuffs.length?"ACTIVE: "+game.verityBuffs.map(b=>VERITY_BUFF_LABELS[b]).join(" + "):"WATCHING";
+ syncVerityClone();
+}
+function updateVerityAfterPoint(winner){
+ if(!game||game.diff!=="impossible"||!isBotMode(game.mode)||winner!=="A")return;
+ game.verityPointCount=(game.verityPointCount||0)+1;
+ let next=[];
+ if(game.scoringMode==="quick"){
+  // A first-time Verity cycles through the three mutations as the player wins points.
+  // Once defeated before, he starts angry with glitch shots and swaps to the next mutation.
+  if(game.verityMad){if(game.pointsA===1)next=["clone"];else if(game.pointsA===2)next=["speedPower"];else next=[...VERITY_BUFFS];}
+  else{if(game.pointsA===1)next=["glitchyShots"];else if(game.pointsA===2)next=["clone"];else if(game.pointsA===3)next=["speedPower"];else next=[...VERITY_BUFFS];}
+ }else{
+  if(game.verityPointCount===1)next=["clone"];
+  else if(game.verityPointCount===2)next=["speedPower"];
+  else next=[...VERITY_BUFFS];
+ }
+ game.verityBuffs=next;game.verityStatusText=next.length===3?"ALL MUTATIONS: GLITCH SHOTS · CLONE · SPEED + POWER":"MUTATION SWAP: "+next.map(b=>VERITY_BUFF_LABELS[b]).join(" + ");
+ syncVerityClone();
+}
+function syncVerityClone(){
+ if(!game||game.diff!=="impossible")return;
+ const wantsClone=(game.verityBuffs||[]).includes("clone");
+ const existing=game.players.find(p=>p.clone&&p.control==="verityClone");
+ if(wantsClone&&!existing){
+  const boss=game.players.find(p=>p.isVerity);if(!boss)return;
+  const clone={...boss,control:"verityClone",idx:1,x:clamp(boss.x+100,court.x+30,court.x+court.w-30),y:boss.y+26,clone:true,isVerity:false,botName:"VERITY ECHO",baseSpeed:boss.baseSpeed*.9,hitCooldown:.4,swingCooldown:.4,botDashCooldown:2,botSprintCooldown:2};
+  game.players.push(clone);
+ }else if(!wantsClone&&existing){game.players=game.players.filter(p=>!(p.clone&&p.control==="verityClone"));}
+}
+
+function tennisScoreText(team){
+ const a=game.pointsA,b=game.pointsB;
+ if(game.isTiebreak)return String(team==="A"?a:b);
+ if(a>=3&&b>=3){
+  if(a===b)return "Deuce";
+  if(a>b)return team==="A"?"Advantage":"40";
+  return team==="B"?"Advantage":"40";
+ }
+ const labels=["Love","15","30","40"];
+ return labels[Math.min(3,team==="A"?a:b)];
+}
+function updateScoreboard(){
+ if(!game)return;
+ const labelA=game.mode==="versus"?"P1 TEAM":game.mode==="duo"?"YOU + FRIEND":"YOU";
+ const labelB=(game.mode==="friend"||game.mode==="versus")?(game.mode==="versus"?"P2 TEAM":"PLAYER 2"):"BOTS";
+ const modeLabel=game.mode==="solo"?"1v1":game.mode==="friend"?"1v1 FRIEND":game.mode==="duo"?"2v2 CO-OP":"2v2 FRIEND";
+ if(game.scoringMode==="quick"){
+  document.getElementById("teamALabel").textContent=labelA;
+  document.getElementById("teamBLabel").textContent=labelB;
+  document.getElementById("scoreA").textContent=game.pointsA;
+  document.getElementById("scoreB").textContent=game.pointsB;
+  document.getElementById("matchInfo").textContent=`${modeLabel} · ${isBotMode(game.mode)?game.diff.toUpperCase()+" · ":""}FIRST TO 5 POINTS`;
+  return;
+ }
+ document.getElementById("teamALabel").textContent=`${labelA} · SETS ${game.setsA} · GAMES ${game.gamesA}`;
+ document.getElementById("teamBLabel").textContent=`${labelB} · SETS ${game.setsB} · GAMES ${game.gamesB}`;
+ document.getElementById("scoreA").textContent=tennisScoreText("A");
+ document.getElementById("scoreB").textContent=tennisScoreText("B");
+ const currentSet=game.setsA+game.setsB+1;
+ document.getElementById("matchInfo").textContent=`${modeLabel} · ${isBotMode(game.mode)?game.diff.toUpperCase()+" · ":""}SET ${currentSet}/3 · ${game.isTiebreak?"TIEBREAK "+game.pointsA+"–"+game.pointsB:`GAMES ${game.gamesA}–${game.gamesB}`}`;
+}
+function setWonBy(winner){
+ const g=game;
+ g.setHistory.push(`${g.gamesA}–${g.gamesB}${g.isTiebreak?` (TB ${g.pointsA}–${g.pointsB})`:""}`);
+ if(winner==="A")g.setsA++;else g.setsB++;
+ g.gamesA=0;g.gamesB=0;g.pointsA=0;g.pointsB=0;g.isTiebreak=false;g.tiebreakPointsA=0;g.tiebreakPointsB=0;g.tiebreakPointCount=0;
+ g.pointText=`SET TO ${winner}!`;g.messageTimer=1.4;
+ if(g.setsA>=2||g.setsB>=2){updateScoreboard();finishMatch(g.setsA>g.setsB?"A":"B");return true;}
+ // The server alternates at the start of the next set.
+ g.serveTeam=oppositeTeam(g.serveTeam);g.tiebreakFirstServer=g.serveTeam;g.serveSide=0;
+ return false;
+}
+function tennisPointWinsGame(){
+ const diff=game.pointsA-game.pointsB;
+ if(Math.max(game.pointsA,game.pointsB)>=4&&Math.abs(diff)>=2)return diff>0?"A":"B";
+ return null;
+}
+function setGameWon(winner){
+ const g=game;
+ if(winner==="A")g.gamesA++;else g.gamesB++;
+ g.pointsA=0;g.pointsB=0;
+ g.pointText=`GAME TO ${winner}!`;g.messageTimer=1.1;
+ // A compact set: first to four games by two; at 4-4 use a tennis tiebreak.
+ if((g.gamesA>=4||g.gamesB>=4)&&Math.abs(g.gamesA-g.gamesB)>=2){return setWonBy(winner);}
+ g.serveTeam=oppositeTeam(g.serveTeam);
+ if(g.gamesA===4&&g.gamesB===4){g.isTiebreak=true;g.pointsA=0;g.pointsB=0;g.tiebreakPointsA=0;g.tiebreakPointsB=0;g.tiebreakPointCount=0;g.tiebreakFirstServer=g.serveTeam;g.pointText="SET TIEBREAK — FIRST TO 7, WIN BY 2";g.messageTimer=1.6;}
+ return false;
+}
+function resetPoint(winner,resultCall=null){
+ if(!game||game.matchOver||game.pointOver)return;
+ const g=game,scoringGame=g;
+ // Freeze every player for the point-result pause (including regular rally OUTs).
+ // This also clears held movement keys, jump momentum, dash momentum, and pending input.
+ g.pointOver=true;
+ g.pointPausePositions=lockPlayersForServeFeedback();
+ if(resultCall==="out"){
+  const out=document.getElementById("pointFeedbackOverlay");
+  document.getElementById("pointFeedbackTitle").textContent="OUT!";
+  document.getElementById("pointFeedbackText").textContent="The ball landed outside the court. Point awarded.";
+  out.classList.add("show");
+  if(pointFeedbackTimeout)clearTimeout(pointFeedbackTimeout);
+  pointFeedbackTimeout=window.setTimeout(()=>{out.classList.remove("show");pointFeedbackTimeout=null;},2000);
+ }
+ if(winner==="A")g.pointsA++;else g.pointsB++;
+ updateVerityAfterPoint(winner);
+ g.pointText=winner==="A"?"Point to your team":"Point to the opponents";
+ let setWon=false;
+ if(g.scoringMode==="quick"){
+  g.pointText=`Point to ${winner} · ${g.pointsA}–${g.pointsB}`;
+  updateScoreboard();
+  if(g.pointsA>=5||g.pointsB>=5){finishMatch(g.pointsA>=5?"A":"B");return;}
+  // Quick games trade serves every point so neither side holds a long service streak.
+  g.serveTeam=oppositeTeam(g.serveTeam);
+ }else if(g.isTiebreak){
+  g.tiebreakPointsA=g.pointsA;g.tiebreakPointsB=g.pointsB;g.tiebreakPointCount++;
+  if(Math.max(g.pointsA,g.pointsB)>=7&&Math.abs(g.pointsA-g.pointsB)>=2){setWon=setWonBy(winner);}
+  else{
+   const completed=g.tiebreakPointCount,block=Math.floor((completed+1)/2);
+   g.serveTeam=block%2===1?oppositeTeam(g.tiebreakFirstServer):g.tiebreakFirstServer;
+  }
+ }else{
+  const gameWinner=tennisPointWinsGame();
+  if(gameWinner){setWon=setGameWon(gameWinner);}
+  // In normal tennis scoring, the same player serves all points of a game.
+ }
+ g.messageTimer=1.25;updateScoreboard();
+ if(g.matchOver)return;
+ window.setTimeout(()=>{
+  if(game!==scoringGame||scoringGame.matchOver)return;
+  game.pointOver=false;setupServe(game.serveTeam);
+ },resultCall==="out"?2000:1050);
+}
+function finishMatch(winner){
+ if(!game||game.matchOver)return;game.matchOver=true;game.pointOver=true;const won=winner==="A";let reward=0;
+ if((game.mode==="solo"||game.mode==="duo")&&won){
+  reward=baseWinReward(game.diff)*(game.scoringMode==="set"?5:1);
+  save.coins+=reward;save.wins++;
+  // Beating Verity once makes the encounter persistently angrier on future rematches.
+  if(game.diff==="impossible")save.verityAngry=true;
+  persist();
+ }
+ document.getElementById("resultEyebrow").textContent=won?"VICTORY":"MATCH OVER";document.getElementById("resultTitle").textContent=won?"You win!":"You lose!";
+ document.getElementById("resultText").textContent=(reward?`You earned ${reward.toLocaleString("en-US")} coins for beating ${game.diff==="impossible"?VERITY_NAME:(botProfiles[game.diff]?.name||game.diff)}! Your progress is saved.`:won?"Great match!":"Better luck next time.")+(won&&game.diff==="impossible"?" Verity remembers this defeat. He will be angrier next time.":"")+(game.scoringMode==="quick"?` Final points: ${game.pointsA}–${game.pointsB}. First to five.`:` Sets: ${game.setsA}–${game.setsB}. ${game.setHistory.length?"Set scores: "+game.setHistory.join(", ")+".":""}`);
+ document.getElementById("gameOverlay").classList.add("show");
+}
+function hidePointFeedback(){if(pointFeedbackTimeout){clearTimeout(pointFeedbackTimeout);pointFeedbackTimeout=null;}const el=document.getElementById("pointFeedbackOverlay");if(el)el.classList.remove("show");}
+function pauseGame(reason="Game paused. Take a breather."){
+ if(!game||game.matchOver||game.paused||!document.getElementById("gameScreen").classList.contains("active"))return;
+ game.paused=true;game.resumeCountdownUntil=0;keys={};serveCharge=null;p2ShiftPowerPending=false;
+ document.getElementById("pauseTitle").textContent="Paused";document.getElementById("pauseMessage").textContent=reason;
+ document.getElementById("pauseCountdown").style.display="none";document.getElementById("resumeButton").disabled=false;document.getElementById("resumeButton").textContent="Resume · 3-second countdown";
+ document.getElementById("pauseOverlay").classList.add("show");
+}
+function resumeGame(){
+ if(!game||!game.paused||game.resumeCountdownUntil)return;
+ keys={};game.resumeCountdownUntil=performance.now()+3000;
+ document.getElementById("pauseTitle").textContent="Get ready!";document.getElementById("pauseMessage").textContent="Play resumes after the countdown.";
+ document.getElementById("pauseCountdown").style.display="block";document.getElementById("pauseCountdown").textContent="3";document.getElementById("resumeButton").disabled=true;document.getElementById("resumeButton").textContent="Get ready…";
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")pauseGame("Paused because you switched tabs. Resume when you're ready.");});
+window.addEventListener("blur",()=>{if(game&&!game.matchOver&&document.getElementById("gameScreen").classList.contains("active"))pauseGame("Paused because the game window lost focus.");});
+function returnToMenu(){if(raf)cancelAnimationFrame(raf);raf=0;hidePointFeedback();document.getElementById("pauseOverlay").classList.remove("show");game=null;showScreen("menuScreen");}
+function restartMatch(){if(!game)return;const mode=game.mode,diff=game.diff,scoringMode=game.scoringMode;if(raf)cancelAnimationFrame(raf);game={mode,diff,scoringMode,pointsA:0,pointsB:0,gamesA:0,gamesB:0,setsA:0,setsB:0,setHistory:[],isTiebreak:false,tiebreakPointsA:0,tiebreakPointsB:0,tiebreakPointCount:0,tiebreakFirstServer:"A",pointOver:false,matchOver:false,paused:false,resumeCountdownUntil:0,serveTeam:"A",serveState:"ready",serveAttempt:1,serveControl:"p1",serveDelay:0,serveActionTimer:0,serveClock:15,serveFeedback:null,serveNetTouched:false,serveSide:0,pointText:"Ready to serve!",messageTimer:1.5,players:[],timeWarpTimer:0,verityBuffs:[],verityPointCount:0,verityStatusText:"",verityMad:!!save.verityAngry,verityCloneCooldown:0,ball:{x:300,y:455,vx:0,vy:0,z:0,vz:0,side:"A",inPlay:false,lastHitter:null,bounces:0,isServe:false,toss:false,freezeTimer:0,freezeVx:0,freezeVy:0,freezeVz:0}};makePlayers();initializeVerityState();setupServe("A");document.getElementById("gameOverlay").classList.remove("show");document.getElementById("pauseOverlay").classList.remove("show");hidePointFeedback();updateScoreboard();const tip=matchTips[Math.floor(Math.random()*matchTips.length)];document.getElementById("matchTipText").textContent=tip;updateAbilityStatus();lastTime=performance.now();raf=requestAnimationFrame(loop);}
+
+
+let p2ShiftPowerPending=false;
+let serveCharge=null;
+window.addEventListener("keydown",e=>{
+ const k=e.key.toLowerCase();
+ if([" ","arrowup","arrowdown","arrowleft","arrowright"].includes(k))e.preventDefault();
+ if(k==="p"&&game&&!game.matchOver){e.preventDefault();if(game.paused){resumeGame();}else{pauseGame("Paused with P. Resume when you're ready.");}return;}
+ if(game?.paused){e.preventDefault();return;}
+ // Ignore new movement/action keydowns during either serve feedback (OUT/LET) or
+ // the short between-points pause, before writing them into the held-key map.
+ if(game&&(game.serveFeedback||game.pointOver)){e.preventDefault();return;}
+ if(e.code==="ShiftLeft")keys.shiftLeft=true;
+ if(e.code==="ShiftRight")keys.shiftRight=true;
+ keys[k]=true;
+ if(e.repeat||!game||game.matchOver||game.pointOver)return;
+ // Right Shift powers Player 2. If it is immediately used with / to type ?, treat it as a hit instead.
+ if(e.code==="ShiftRight"){
+  p2ShiftPowerPending=true;
+  window.setTimeout(()=>{if(p2ShiftPowerPending){p2ShiftPowerPending=false;useAbility(game?.mode==="solo"?"p1":"p2");}},140);
+  return;
+ }
+ if(k==="f")tryHit("p1","auto",true);
+ if(k==="g")tryHit("p1","lob");
+ if(k===" ")jump("p1");
+ if(k==="e")useAbility("p1");
+ if(k==="q")dash("p1");
+ if(k==="?"||(e.code==="Slash"&&e.shiftKey)){p2ShiftPowerPending=false;tryHit(game?.mode==="solo"?"p1":"p2","auto",true);}
+ else if(k==="/")jump(game?.mode==="solo"?"p1":"p2");
+ if(k===".")tryHit(game?.mode==="solo"?"p1":"p2","lob");
+ if(k===",")dash(game?.mode==="solo"?"p1":"p2");
+},{passive:false});
+window.addEventListener("keyup",e=>{if(game?.paused){keys={};return;}if(serveCharge){const control=serveCharge.control,team=serveCharge.team;const playerOneHitRelease=e.key.toLowerCase()==="f"||(game?.mode==="solo"&&e.key==="?");const playerTwoHitRelease=e.key==="?"||(e.code==="Slash"&&e.shiftKey);if((control==="p1"&&playerOneHitRelease)||(control==="p2"&&playerTwoHitRelease)){if(game&&game.serveState==="tossed"&&game.ball.z>16)strikeServe(team,control);else serveCharge=null;}}keys[e.key.toLowerCase()]=false;if(e.code==="ShiftLeft")keys.shiftLeft=false;if(e.code==="ShiftRight")keys.shiftRight=false;});
+function controlsFor(p){
+ if(p.control==="p1"||p.control==="p1b"){
+  if(game?.mode==="solo")return {x:((keys.d||keys.arrowright)?1:0)-((keys.a||keys.arrowleft)?1:0),y:((keys.s||keys.arrowdown)?1:0)-((keys.w||keys.arrowup)?1:0),sprint:!!(keys.shiftLeft||keys.m)};
+  return {x:(keys.d?1:0)-(keys.a?1:0),y:(keys.s?1:0)-(keys.w?1:0),sprint:!!keys.shiftLeft};
+ }
+ if(p.control==="p2"||p.control==="p2b")return {x:(keys.arrowright?1:0)-(keys.arrowleft?1:0),y:(keys.arrowdown?1:0)-(keys.arrowup?1:0),sprint:!!keys.m};
+ return {x:0,y:0,sprint:false};
+}
+function jump(control){
+ if(!game||game.matchOver||game.paused||game.pointOver||game.serveFeedback)return;
+ const players=controlledPlayers(control);if(!players.length)return;
+ const p=[...players].sort((a,b)=>distance(a,game.ball)-distance(b,game.ball))[0];
+ if(p.jumpCooldown>0||p.jumpHeight>1||p.jumpVelocity>0)return;
+ // A readable, finite jump arc. Jumping is movement, not a teleport.
+ p.jumpVelocity=390;p.jumpHeight=1;p.jumpCooldown=.22;p.flash=.08;
+}
+function teamOfControl(control){return control==="p2"||control==="p2b"?"B":"A";}
+function controlledPlayers(control){const team=teamOfControl(control);return game.players.filter(p=>p.team===team&&!p.bot);}
+function tryHit(control,type="normal",serveKey=false){
+ if(!game||game.matchOver||game.pointOver)return;
+ const team=teamOfControl(control),b=game.ball;
+ if(!b.inPlay){
+  if(serveKey&&team===game.serveTeam){
+   if(control!==game.serveControl){document.getElementById("serveInfo").textContent="The designated server must take this serve.";return;}
+   if(game.serveState==="ready")beginServeToss(team,control);
+   else if(game.serveState==="tossed"&&b.z>16){if(!serveCharge||serveCharge.control!==control){serveCharge={control,team,started:performance.now()};document.getElementById("serveInfo").textContent="HOLD HIT to charge power — release to serve!";}}
+   else if(game.serveState==="tossed")document.getElementById("serveInfo").textContent="Wait for the toss to rise a little higher.";
+  }
+  return;
+ }
+ const candidates=controlledPlayers(control);if(!candidates.length)return;
+ const p=[...candidates].sort((a,b)=>distance(a,game.ball)-distance(b,game.ball))[0];
+ // F/Enter are easy-to-use context shots: normal return on the ground, spike while airborne.
+ if(type==="auto")type=(p.jumpHeight>12||p.jumpVelocity>0)?"spike":"normal";
+ // One hit per side per crossing. The receiver must let a serve bounce before returning it.
+ if(b.side===team){document.getElementById("serveInfo").textContent="Wait for the other side to return the ball.";return;}
+ if(b.isServe&&b.bounces===0){document.getElementById("serveInfo").textContent="Let the serve bounce before returning it.";return;}
+ // In this top-down court, A owns the lower half and B owns the upper half.
+ // Do not allow a player to volley while the ball is still on the opponent's side.
+ const ballOnOwnSide=team==="A"?b.y>=netY: b.y<=netY;
+ if(!ballOnOwnSide){document.getElementById("serveInfo").textContent="Wait for the ball to cross the net onto your side.";return;}
+ if(p.swingCooldown>0||p.hitCooldown>0){document.getElementById("serveInfo").textContent="Recovering from your last swing…";return;}
+ const dx=Math.abs(p.x-b.x),dy=Math.abs(p.y-b.y);
+ const reach=78+(p.reachBoost>0?118:0)+(p.godlyEffect==="honoredOne"||p.godlyEffect==="sunGod"?34:0);
+ const reachY=76+(p.reachBoost>0?95:0)+(p.godlyEffect?22:0);
+ const maxBallHeight=225+Math.max(0,p.jumpHeight)*1.45+(p.jumpVelocity>0?25:0);
+ if(dx>reach||dy>reachY||b.z>maxBallHeight){
+  // A missed swing has only a tiny recovery, not a long penalty that makes the next hit impossible.
+  p.swingCooldown=.09;
+  document.getElementById("serveInfo").textContent="Too far from the ball — move closer and press hit again.";
+  return;
+ }
+ p.swingCooldown=.54;
+ hitBall(p,type);document.getElementById("serveInfo").textContent=type==="lob"?"Lob returned!":type==="spike"?"Spike returned!":"Ball returned!";
+}
+function setupServe(team,options={}){
+ const sameSpot=options.sameSpot===true;
+ const keptAttempt=Number.isInteger(options.attempt)?options.attempt:game.serveAttempt;
+ game.serveTeam=team;game.serveState="ready";game.serveAttempt=sameSpot?keptAttempt:1;game.serveDelay=0;game.serveActionTimer=0;game.serveClock=15;game.serveFeedback=null;game.serveNetTouched=false;
+ const server=team==="A"?game.players.find(p=>p.control==="p1"):((game.mode==="friend"||game.mode==="versus")?game.players.find(p=>p.control==="p2"):game.players.find(p=>p.team==="B"&&p.bot));
+ if(!server)return;
+ const selectedSide=sameSpot?(Number.isInteger(game.activeServeSide)?game.activeServeSide:game.serveSide):game.serveSide;
+ if(!sameSpot){game.activeServeSide=selectedSide;game.serveSide=1-selectedSide;}
+ const x=selectedSide===0?court.x+court.w*.28:court.x+court.w*.72;
+ // The receiver lines up in the diagonal service box the serve is targeting.
+ const receiveX=x<W/2?court.x+court.w*.72:court.x+court.w*.28;
+ game.serveReceiveX=receiveX;game.serveTargetRight=receiveX>W/2;
+ server.x=x;server.y=team==="A"?court.y+court.h+12:court.y-12;
+ for(const q of game.players){
+  if(q===server)continue;
+  if(q.team===team){
+   // Always reposition teammates too. This is important after a LET or fault because
+   // those players may have wandered during the previous point/feedback sequence.
+   q.x=receiveX;q.y=team==="A"?court.y+court.h-82:court.y+82;
+  }else{
+   q.y=team==="A"?court.y+55:court.y+court.h-55;
+   // In singles, the receiver goes into the diagonal target lane. In doubles, their
+   // partner covers the opposite lane. Both players are reset on every serve restart.
+   q.x=q.idx===0?receiveX:(receiveX>W/2?court.x+court.w*.28:court.x+court.w*.72);
+  }
+  clampPlayerToHalf(q);
+ }
+ const b=game.ball;b.x=server.x;b.y=server.y+(team==="A"?-5:5);b.vx=0;b.vy=0;b.z=0;b.vz=0;b.side=team;b.inPlay=false;b.lastHitter=null;b.bounces=0;b.isServe=false;b.toss=false;b.netTouched=false;b.freezeTimer=0;
+ game.serveControl=server.control;document.getElementById("serveInfo").textContent=team+" team — first serve. Press serve key to toss.";
+}
+function beginServeToss(team,control){
+ if(team!==game.serveTeam||game.serveState!=="ready"||control!==game.serveControl)return;
+ const p=game.players.find(q=>q.control===control)||game.players.find(q=>q.team===team&&q.bot);if(!p)return;
+ const b=game.ball;const front=team==="A"?-24:24;b.x=p.x+(p.aimX||0)*5;b.y=p.y+front;b.z=6;b.vz=235;b.vx=0;b.vy=0;b.inPlay=false;b.toss=true;b.isServe=true;b.side=team;b.lastHitter=control;b.bounces=0;b.freezeTimer=0;
+ game.serveState="tossed";game.serveControl=control;game.serveActionTimer=0;game.serveAimPhase=0;game.serveNetTouched=false;serveCharge=null;game.pointText="Toss it up, then hit while it's airborne!";game.messageTimer=1.1;
+ document.getElementById("serveInfo").textContent=(game.serveAttempt===1?"First serve":"Second serve")+" — press serve key again while the ball is in the air.";
+}
+function strikeServe(team,control){
+ if(team!==game.serveTeam||game.serveState!=="tossed"||control!==game.serveControl||game.ball.z<16)return;
+ const p=game.players.find(q=>q.control===control)||game.players.find(q=>q.team===team&&q.bot);if(!p)return;
+ const b=game.ball,charge=serveCharge&&serveCharge.control===control?Math.min(1,(performance.now()-serveCharge.started)/1250):.45;
+ // The moving marker selects a diagonal service-box lane, while charge and a shot
+ // ability decide speed. Ability effects are not silently discarded on serves.
+ const phase=game.serveAimPhase||0,aimRight=Math.sin(phase)>=0;
+ const targetCenter=p.x<W/2?court.x+court.w*.70:court.x+court.w*.30;
+ const targetX=targetCenter+(aimRight?1:-1)*court.w*.075;
+ const depth=(Math.sin(phase)+1)/2;
+ const targetY=team==="A"?netY-8-depth*62:netY+8+depth*62;
+ const effect=p.activeShot;let abilityMultiplier=1,highArc=false,curveAccel=0;
+ if(effect){
+  const multipliers={speedyShot:1.42,softTouch:.68,steadyAim:1.12,quickServe:1.55,featherLob:1.18,safeReturn:1.18,shortAngle:1.08,lowSkimmer:1.25,bounceControl:1.13,sharpReflexes:1.14,rallyRhythm:1.28,netSaver:1.24,curveLite:1.10,moonBall:1.10,curveShot:1.32,heavyTopspin:1.38,rocketServe:1.72,sidewinder:1.35,airControl:1.13,afterimage:1.42,stickyGrip:1.22,aceFinder:1.48,backspinDrop:.72,teleportation:1.15,mirrorReturn:1.55,phantomStep:1.40,gravityWell:1.35,thunderServe:1.82,cometShot:1.95,timeWarp:1.20,shadowRally:1.55,ultimateSpin:2.0,meteorSmash:2.2,chronoBreak:1.85,solarFlare:2.05,aetherDash:1.62};
+  abilityMultiplier=multipliers[effect]||1;
+  highArc=["featherLob","moonBall","airControl","gravityWell"].includes(effect);
+  if(["curveLite","shortAngle","curveShot","sidewinder","mirrorReturn","shadowRally","ultimateSpin","chronoBreak"].includes(effect))curveAccel=(Math.random()<.5?-1:1)*({curveLite:300,shortAngle:480,curveShot:650,sidewinder:880,mirrorReturn:760,shadowRally:820,ultimateSpin:1150,chronoBreak:1250}[effect]||400);
+  p.activeShot=null;
+ }
+ const chargeMultiplier=.82+charge*.50,gravity=650,startZ=Math.max(18,b.z);
+ let flightTime=(1.08-charge*.24)/Math.sqrt(chargeMultiplier*abilityMultiplier);
+ if(highArc)flightTime*=1.16;
+ flightTime=clamp(flightTime,highArc?.88:.44,highArc?1.34:1.12);
+ b.vx=(targetX-b.x)/flightTime;b.vy=(targetY-b.y)/flightTime;
+ b.vz=(gravity*flightTime/2)-(startZ/flightTime);b.z=startZ;b.flightTime=flightTime;
+ b.trailColor=(effect==="solarFlare"?"#ff9a3d":effect==="cometShot"?"#e1f5ff":effect==="ultimateSpin"?"#ffce69":"#b9ff68");b.trailUntil=performance.now()+850;
+ b.targetRight=targetX>W/2;b.inPlay=true;b.toss=false;b.netTouched=false;b.isServe=true;b.side=team;b.lastHitter=control;b.bounces=0;b.curveAccelX=curveAccel;b.curveTime=curveAccel?0.42:0;
+ game.serveState="rally";serveCharge=null;document.getElementById("serveInfo").textContent=`Serve power: ${Math.round(charge*100)}% — ${charge>.78?"powerful":"controlled"} serve!`;
+}
+function stopServeBall(){
+ const b=game.ball;b.vx=0;b.vy=0;b.z=0;b.vz=0;b.inPlay=false;b.toss=false;b.isServe=false;b.bounces=0;b.freezeTimer=0;b.netTouched=false;
+ const p=game.players.find(q=>q.control===game.serveControl)||game.players.find(q=>q.team===game.serveTeam&&q.bot);
+ if(p){b.x=p.x;b.y=p.y+(game.serveTeam==="A"?-5:5);}
+}
+function lockPlayersForServeFeedback(){
+ // Snapshot every player so a dash, jump, ability, or held direction cannot change
+ // the server's position during the two-second OUT/LET call.
+ const positions=(game?.players||[]).map(p=>({control:p.control,x:p.x,y:p.y}));
+ keys={};serveCharge=null;p2ShiftPowerPending=false;
+ for(const p of (game?.players||[])){p.dashTime=0;p.dashVX=0;p.dashVY=0;p.jumpVelocity=0;p.jumpHeight=0;}
+ return positions;
+}
+function restoreServeFeedbackPositions(feedback){
+ if(!game||!feedback?.positions)return;
+ for(const pos of feedback.positions){const p=game.players.find(q=>q.control===pos.control);if(p){p.x=pos.x;p.y=pos.y;p.dashTime=0;p.dashVX=0;p.dashVY=0;p.jumpVelocity=0;p.jumpHeight=0;}}
+ keys={};serveCharge=null;p2ShiftPowerPending=false;
+}
+function registerServeLet(){
+ if(!game||game.matchOver||game.paused||game.pointOver||game.serveFeedback)return;
+ const team=game.serveTeam,positions=lockPlayersForServeFeedback();
+ stopServeBall();game.serveState="feedback";game.serveClock=15;
+ game.serveFeedback={kind:"let",title:"LET",subtitle:"Serve again",timer:2,team,positions};
+ game.pointText="";game.messageTimer=0;
+ document.getElementById("serveInfo").textContent="Let — replay the same serve from the same position.";
+}
+function registerServeFault(){
+ if(!game||game.matchOver||game.paused||game.pointOver||game.serveFeedback)return;
+ const team=game.serveTeam,firstFault=game.serveAttempt===1,positions=lockPlayersForServeFeedback();
+ stopServeBall();game.serveState="feedback";
+ game.serveFeedback={kind:"fault",title:"OUT",subtitle:firstFault?"First serve fault — second serve":"Double fault — point to opponent",timer:2,team,firstFault,positions};
+ game.pointText="";game.messageTimer=0;
+ document.getElementById("serveInfo").textContent=firstFault?"OUT — first-serve fault. Second serve in 2 seconds.":"OUT — double fault. Point awarded in 2 seconds.";
+}
+function finishServeFeedback(){
+ if(!game||!game.serveFeedback)return;
+ const feedback=game.serveFeedback;
+ restoreServeFeedbackPositions(feedback);
+ game.serveFeedback=null;game.serveActionTimer=0;game.serveDelay=0;game.serveNetTouched=false;game.serveClock=15;
+ if(feedback.kind==="let"){
+  // A let replays the same serve from the same service side, but repositions EVERY player
+  // to their legal receiving/serving stance instead of leaving them where they moved earlier.
+  setupServe(feedback.team,{sameSpot:true,attempt:game.serveAttempt});
+  document.getElementById("serveInfo").textContent=`LET — same serve, same position. ${Math.ceil(game.serveClock)} seconds to serve.`;
+  return;
+ }
+ if(feedback.firstFault){
+  // The second serve uses the exact same service box; player and bot positions are refreshed.
+  setupServe(feedback.team,{sameSpot:true,attempt:2});
+  document.getElementById("serveInfo").textContent=`Second serve — ${Math.ceil(game.serveClock)} seconds to serve.`;
+  return;
+ }
+ const losingTeam=oppositeTeam(feedback.team);resetPoint(losingTeam);
+ if(game){game.pointText="DOUBLE FAULT — POINT TO OPPONENT";game.messageTimer=1.8;}
+}
+function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+function playerCharacter(p){return (p.team==="A"&&(p.control==="p1"||p.control==="p1b"))?save.equippedGodly:"Rookie";}
+function applyActiveShot(p,powerRef){ /* reserved for data-driven shot tuning */ }
+function hitBall(p,type){
+ const b=game.ball;
+ const isSpike=type==="spike",isLob=type==="lob";
+ // Spike shots are substantially faster than ordinary returns. A jump also gives
+ // the strike extra contact height, so a properly timed spike clears the net.
+ let power=isSpike?820:isLob?355:430;
+ let lift=isLob?460:isSpike?25:265;
+ let curveBonus=0,spread=82,recovery=.32,bouncePower=0,curveAccelX=0,curveTime=0;
+ const effect=p.activeShot;
+ if(effect){switch(effect){
+  // COMMON: each effect has a distinct, visible shot/movement benefit.
+  case"speedyShot":power*=1.70;break;
+  case"softTouch":power*=.62;lift=75;break;
+  case"steadyAim":spread=0;power*=1.22;break;
+  case"quickServe":power*=1.45;break;
+  case"featherLob":lift=540;power*=1.12;break;
+  case"lightFeet":power*=1.08;break;
+  case"safeReturn":power*=1.26;spread=5;break;
+  case"shortAngle":curveBonus+=(p.x<court.x+court.w/2?1:-1)*500;curveAccelX=(p.x<court.x+court.w/2?1:-1)*620;curveTime=.36;break;
+  case"lowSkimmer":lift=24;power*=1.25;break;
+  case"bounceControl":lift=210;power*=1.15;bouncePower=1;break;
+  case"sharpReflexes":power*=1.18;recovery=.09;break;
+  case"rallyRhythm":power*=1.42;recovery=.18;break;
+  case"netSaver":power*=Math.abs(p.y-netY)<150?1.42:1.12;break;
+  case"curveLite":curveBonus+=(Math.random()<.5?-1:1)*300;curveAccelX+=(Math.random()<.5?-1:1)*420;curveTime=.38;break;
+  // RARE
+  case"moonBall":lift=560;power*=1.08;break;
+  case"quickStep":power*=1.10;break;
+  case"curveShot":{const dir=Math.random()<.5?-1:1;curveBonus+=dir*430;curveAccelX+=dir*720;curveTime=.46;break;}
+  case"heavyTopspin":power*=1.42;lift=165;break;
+  case"rocketServe":power*=1.58;break;
+  case"longReach":power*=1.14;break;
+  case"sidewinder":{const dir=Math.random()<.5?-1:1;curveBonus+=dir*520;curveAccelX+=dir*980;curveTime=.52;break;}
+  case"airControl":lift=470;power*=1.12;break;
+  case"afterimage":power*=1.50;break;
+  case"stickyGrip":power*=1.20;spread=2;break;
+  case"aceFinder":power*=1.48;spread=2;break;
+  case"backspinDrop":power*=.66;lift=60;break;
+  // EPIC
+  case"teleportation":power*=1.18;break;
+  case"mirrorReturn":{const dir=Math.random()<.5?-1:1;power*=1.58;curveBonus+=dir*400;curveAccelX+=dir*780;curveTime=.46;break;}
+  case"phantomStep":power*=1.48;break;
+  case"gravityWell":lift=510;power*=1.42;break;
+  case"thunderServe":power*=1.80;lift=240;break;
+  case"cometShot":power*=1.95;lift=260;break;
+  case"timeWarp":power*=1.25;break;
+  case"shadowRally":{const dir=Math.random()<.5?-1:1;power*=1.58;curveBonus+=dir*520;curveAccelX+=dir*850;curveTime=.50;break;}
+  // LEGENDARY
+  case"ultimateSpin":{const dir=Math.random()<.5?-1:1;power*=2.00;curveBonus+=dir*650;curveAccelX+=dir*1200;curveTime=.55;break;}
+  case"meteorSmash":power*=2.35;lift=20;break;
+  case"chronoBreak":{const dir=Math.random()<.5?-1:1;power*=1.88;curveBonus+=dir*700;curveAccelX+=dir*1350;curveTime=.50;break;}
+  case"solarFlare":power*=2.05;lift=280;break;
+  case"aetherDash":power*=1.68;break;
+ }p.activeShot=null;}
+ const godly=p.godlyEffect;
+ if(godly==="sunGod"){power*=1.80;lift=Math.max(lift,360);}
+ if(godly==="honoredOne"){power*=1.90;lift=Math.max(lift,390);const dir=Math.random()<.5?-1:1;curveBonus+=dir*600;curveAccelX+=dir*1000;curveTime=.58;spread=Math.min(spread,20);}
+ if(p.isVerity&&game.diff==="impossible"&&(game.verityBuffs||[]).includes("speedPower")){power*=1.42;lift=Math.max(lift,290);curveBonus+=(Math.random()-.5)*180;}
+ // Jumping changes the contact height, which is what lets a spike be driven down
+ // fast while clearing the net. This is separate from the ball's current arc height.
+ const startZ=clamp(Math.max(12,b.z+(isSpike?Math.max(48,p.jumpHeight*.78):0)),12,220);
+ const xb=courtXBounds(),aimX=clamp(p.aimX||0,-1,1),aimY=clamp(p.aimY||0,-1,1);
+ const courtCenterX=(xb.left+xb.right)/2;
+ let targetX=clamp(b.x*.56+courtCenterX*.44+aimX*190+(Math.random()-.5)*spread+curveBonus*.42,xb.left+12,xb.right-12);
+ let targetY;
+ if(isLob||(!isSpike&&lift>=350)){
+  targetY=p.team==="A"?court.y+24+Math.random()*65:court.y+court.h-89-Math.random()*65;
+ }else if(isSpike){
+  // Aim into the opponent's half rather than right on the net, reducing cheap net clips.
+  targetY=p.team==="A"?court.y+72+Math.random()*100:court.y+court.h-172+Math.random()*100;
+ }else if(lift<=100){
+  // Low-lift shots are intentional drop/skimmer shots that land just beyond the net.
+  targetY=p.team==="A"?netY-32-Math.random()*72:netY+32+Math.random()*72;
+ }else{
+  targetY=p.team==="A"?court.y+75+Math.random()*115:court.y+court.h-190+Math.random()*115;
+ }
+ const extraDepth=clamp((power/430-1)*52,-22,75);
+ targetY=p.team==="A"?targetY-extraDepth:targetY+extraDepth;
+ targetY+=aimY*86;
+ if(p.isVerity&&game.diff==="impossible"&&(game.verityBuffs||[]).includes("glitchyShots")){
+  targetX+=Math.sin(performance.now()*.035+game.verityPointCount*1.7)*78+(Math.random()-.5)*72;
+  curveAccelX+=(Math.random()-.5)*900;curveTime=Math.max(curveTime,.42);
+  targetY+=(Math.random()-.5)*46;game.verityGlitchPulse=.22;
+ }
+ targetY=p.team==="A"?clamp(targetY,court.y+18,netY-25):clamp(targetY,netY+25,court.y+court.h-18);
+ const gravity=650;
+ // Shot power now genuinely changes flight duration (and therefore speed). Lobs
+ // remain lofted, while spikes use a short, hard-driven flight time.
+ const speedFactor=clamp(Math.sqrt(power/(isSpike?820:430)),.72,2.7);
+ const baseFlight=isSpike?.52:isLob||(!isSpike&&lift>=350)?1.25:.92;
+ let flightTime=clamp(baseFlight/speedFactor,isSpike?.40:isLob?.92:.55,isSpike?.62:isLob?1.42:1.12);
+ // Guarantee a little clearance above the net at the crossing point. Jump spikes
+ // start much higher, so they stay fast and can still be driven steeply downward.
+ const netFraction=clamp(Math.abs(netY-b.y)/Math.max(1,Math.abs(targetY-b.y)),.08,.92);
+ const clearHeight=29;
+ const need=clearHeight-startZ*(1-netFraction);
+ if(need>0){const minForNet=Math.sqrt((2*need)/(gravity*netFraction*(1-netFraction)));flightTime=Math.max(flightTime,Math.min(isSpike?.78:1.35,minForNet));}
+ b.vx=(targetX-b.x)/flightTime;b.vy=(targetY-b.y)/flightTime;
+ b.vz=(gravity*flightTime/2)-(startZ/flightTime);b.z=startZ;b.flightTime=flightTime;
+ b.side=p.team;b.lastHitter=p.control;b.bounces=0;b.isServe=false;b.toss=false;b.freezeTimer=0;b.bouncePower=bouncePower;b.curveAccelX=curveAccelX;b.curveTime=curveTime;
+ const shotColors={speedyShot:"#63e8ff",softTouch:"#a9d8ff",steadyAim:"#b9ff68",quickServe:"#fff06a",featherLob:"#62e8ff",moonBall:"#7dd5ff",curveLite:"#78ffd5",curveShot:"#6ce8ff",sidewinder:"#cf8cff",mirrorReturn:"#ce9aff",shadowRally:"#f07cff",ultimateSpin:"#ffce69",meteorSmash:"#ff814d",chronoBreak:"#ff62d2",solarFlare:"#ff9a3d",cometShot:"#e1f5ff",thunderServe:"#fff27b",gravityWell:"#a98aff"};
+ b.trailColor=godly==="sunGod"?"#ff5d38":godly==="honoredOne"?"#f4f7ff":isSpike?"#ffdc67":isLob?"#62e8ff":(shotColors[effect]||"#b9ff68");b.trailUntil=performance.now()+850;
+ p.hitCooldown=recovery;p.swingCooldown=recovery;p.flash=isSpike?.28:.15;
+ if(isSpike){p.flash=.38;game.pointText="SPIKE!";game.messageTimer=.45;}
+ updateAbilityStatus();
+}
+
+function activateEffect(p,effect){
+ if(["lightFeet","focusMode","quickStep","timeWarp"].includes(effect)){p.boost=Math.max(p.boost,effect==="quickStep"?4.4:effect==="timeWarp"?3.8:3.6);p.boostMultiplier=Math.max(p.boostMultiplier||1,effect==="quickStep"?2.05:effect==="timeWarp"?1.8:1.9);if(effect==="timeWarp")game.timeWarpTimer=3.8;return;}
+ if(effect==="longReach"){p.reachBoost=8;p.boost=Math.max(p.boost,1.5);p.boostMultiplier=Math.max(p.boostMultiplier||1,1.3);p.flash=.28;return;}
+ if(effect==="teleportation"){
+  p.flash=.4;p.boost=Math.max(p.boost,1.6);p.boostMultiplier=Math.max(p.boostMultiplier||1,1.6);
+  const b=game.ball;const minY=p.team==="A"?netY+24:court.y+24,maxY=p.team==="A"?court.y+court.h-24:netY-24,xb=courtXBounds();
+  if(b.inPlay){p.x=clamp(b.x,xb.left,xb.right);p.y=clamp(b.y,minY,maxY);}else{p.y=clamp(p.y+(p.team==="A"?-70:70),minY,maxY);}p.flash=.4;return;
+ }
+ if(["phantomStep","afterimage"].includes(effect)){
+  let dx=keys.a?-1:keys.d?1:0,dy=keys.w?-1:keys.s?1:0;if(!dx&&!dy){dx=game.ball.inPlay?game.ball.x-p.x:(p.x<W/2?1:-1);dy=game.ball.inPlay?game.ball.y-p.y:0;}const mag=Math.hypot(dx,dy)||1;p.dashVX=dx/mag*690;p.dashVY=dy/mag*690;p.dashTime=.22;p.flash=.3;p.activeShot=effect;p.boost=Math.max(p.boost,1.3);p.boostMultiplier=Math.max(p.boostMultiplier||1,1.55);return;
+ }
+ if(effect==="aetherDash"){let dx=keys.d?1:keys.a?-1:0,dy=keys.s?1:keys.w?-1:0;if(!dx&&!dy){dx=game.ball.x-p.x;dy=game.ball.y-p.y;}const m=Math.hypot(dx,dy)||1;p.dashVX=dx/m*820;p.dashVY=dy/m*820;p.dashTime=.24;p.activeShot=effect;p.boost=Math.max(p.boost,1.5);p.boostMultiplier=Math.max(p.boostMultiplier||1,1.65);return;}
+ p.activeShot=effect;
+}
+
+function useAbility(control){
+ if(!game||game.matchOver||game.pointOver||game.serveFeedback)return;const candidates=controlledPlayers(control);if(!candidates.length)return;const p=[...candidates].sort((a,b)=>distance(a,game.ball)-distance(b,game.ball))[0];if(p.abilityTimer>0)return;
+ const godly=teamOfControl(control)==="A"?save.equippedGodly:"Rookie";
+ if(godly==="Honored One"&&save.ownedGodly.includes("Honored One")){
+  p.godlyEffect="honoredOne";p.godlyTimer=8;p.boost=Math.max(p.boost,8);p.reachBoost=8;p.flash=.5;
+  const b=game.ball;if(b.inPlay&&b.side!==p.team){b.freezeTimer=1.7;b.freezeVx=b.vx;b.freezeVy=b.vy;b.freezeVz=b.vz;b.vx=0;b.vy=0;b.vz=0;}
+ }else if(godly==="Sun God"&&save.ownedGodly.includes("Sun God")){
+  p.godlyEffect="sunGod";p.godlyTimer=8;p.boost=Math.max(p.boost,8);p.reachBoost=8;p.flash=.5;
+ }else{
+  const item=abilityData.find(a=>a.name===save.equipped)||abilityData[0];p.activeShot=null;activateEffect(p,item.effect);
+ }
+ p.abilityMax=30;p.abilityTimer=30;updateAbilityStatus();
+}
+
+function performDash(p,distanceToDash=100){
+ let c=controlsFor(p),dx=c.x,dy=c.y;if(!dx&&!dy){const b=game.ball;dx=b.inPlay?b.x-p.x:(p.team==="A"?1:-1);dy=b.inPlay?b.y-p.y:0;}
+ const mag=Math.hypot(dx,dy)||1;p.dashVX=dx/mag*(distanceToDash/.14);p.dashVY=dy/mag*(distanceToDash/.14);p.dashTime=.14;p.flash=.25;
+}
+
+function dash(control){if(!game||game.matchOver||game.pointOver||game.serveFeedback)return;const players=controlledPlayers(control);if(!players.length)return;const p=[...players].sort((a,b)=>distance(a,game.ball)-distance(b,game.ball))[0];if(p.dashCooldown>0)return;performDash(p,control==="p1"?112:105);p.dashCooldown=3.5;}
+
+function botUpdate(p,dt){
+ const b=game.ball;
+ // Hold the pre-positioned return stance until the serve is struck; otherwise the idle
+ // home-position logic would drag the receiver left before the serve even begins.
+ if(!b.inPlay&&(game.serveState==="ready"||game.serveState==="tossed")){
+  clampPlayerToHalf(p);return;
+ }
+ let targetX=p.idx===0?court.x+court.w*.30:court.x+court.w*.70,targetY=p.team==="B"?court.y+95:court.y+court.h-95;const chasing=b.inPlay&&b.side!==p.team;
+ if(chasing){
+  const xb=courtXBounds(),ownY=p.team==="A"?{min:netY+25,max:court.y+court.h-25}:{min:court.y+25,max:netY-25};
+  if(b.bounces===0){
+   // Read the likely landing point so an AI receiver can get under a serve instead of chasing behind it.
+   const timeToGround=clamp((b.vz+Math.sqrt(Math.max(0,b.vz*b.vz+2*650*Math.max(0,b.z))))/650,0,1.35);
+   targetX=clamp(b.x+b.vx*timeToGround,xb.left,xb.right);targetY=clamp(b.y+b.vy*timeToGround,ownY.min,ownY.max);
+  }else{targetX=clamp(b.x,xb.left,xb.right);targetY=clamp(b.y,ownY.min,ownY.max);}
+ }
+ const isV=p.isVerity&&game.diff==="impossible";const buffs=isV?(game.verityBuffs||[]):[];
+ const skill=game.diff==="easy"?.78:game.diff==="medium"?.94:game.diff==="hard"?1.01:(buffs.includes("speedPower")?1.24:1.01);const slow=game.timeWarpTimer>0?.48:1;let dx=targetX-p.x,dy=targetY-p.y,dist=Math.hypot(dx,dy);
+ // Bots use a short sprint burst when the ball is far away, then a directional dash
+ // when they are unlikely to reach the predicted landing point in time. Easier bots
+ // still get these tools, but use them less often and move less explosively.
+ if(chasing&&dist>92&&p.botSprintCooldown<=0){
+  p.botSprintTimer=game.diff==="easy"?.58:game.diff==="medium"?.82:game.diff==="hard"?.90:(buffs.includes("speedPower")?1.12:.90);
+  p.botSprintCooldown=game.diff==="easy"?3.8:game.diff==="medium"?2.9:game.diff==="hard"?2.75:(buffs.includes("speedPower")?1.9:2.75);
+ }
+ const dashThreshold=game.diff==="easy"?175:game.diff==="medium"?135:game.diff==="hard"?132:(buffs.includes("speedPower")?92:132);
+ if(chasing&&dist>dashThreshold&&p.botDashCooldown<=0&&!(b.isServe&&b.bounces===0)){
+  const mag=Math.hypot(dx,dy)||1;const dashSpeed=game.diff==="easy"?650:game.diff==="medium"?780:game.diff==="hard"?830:(buffs.includes("speedPower")?1030:830);
+  p.dashVX=dx/mag*dashSpeed;p.dashVY=dy/mag*dashSpeed;p.dashTime=.13;p.botDashCooldown=game.diff==="easy"?6.2:game.diff==="medium"?4.9:game.diff==="hard"?4.5:3.2;p.flash=.16;
+ }
+ if(dist>7){
+  if(p.dashTime>0){p.x+=p.dashVX*dt;p.y+=p.dashVY*dt;}
+  else{const sprintMultiplier=p.botSprintTimer>0?(game.diff==="easy"?1.20:game.diff==="medium"?1.34:game.diff==="hard"?1.36:1.55):1;p.x+=dx/dist*p.baseSpeed*skill*slow*sprintMultiplier*dt;p.y+=dy/dist*p.baseSpeed*skill*slow*sprintMultiplier*dt;}
+  p.aimX=clamp(p.aimX*.50+(dx/(dist||1))*.50,-1,1);p.aimY=clamp(p.aimY*.50+(dy/(dist||1))*.50,-1,1);
+ }
+ clampPlayerToHalf(p);
+ // Easy players still return reachable balls, but have slower reaction speed and a wider miss window.
+ const botReach=game.diff==="easy"?70:game.diff==="medium"?72:game.diff==="hard"?75:(isV&&buffs.includes("speedPower")?88:75);
+ if(chasing&&!(b.isServe&&b.bounces===0)&&distance(p,b)<botReach&&p.hitCooldown<=0&&p.swingCooldown<=0&&b.z<(game.diff==="easy"?110:game.diff==="impossible"?(isV&&buffs.includes("speedPower")?210:155):game.diff==="hard"?155:165)){const type=(game.diff==="hard"||game.diff==="impossible")&&Math.random()<(game.diff==="impossible"?.42:.22)?"spike":Math.random()<.22?"lob":"normal";hitBall(p,type);}
+}
+
+function update(dt){
+ const g=game;if(!g||g.matchOver||g.paused)return;g.messageTimer=Math.max(0,g.messageTimer-dt);g.timeWarpTimer=Math.max(0,g.timeWarpTimer-dt);g.verityGlitchPulse=Math.max(0,(g.verityGlitchPulse||0)-dt);
+ if(g.serveFeedback){g.serveFeedback.timer-=dt;if(g.serveFeedback.timer<=0)finishServeFeedback();updateAbilityStatus();return;}
+ // Do not process player or bot movement during any point-result pause. Clear keys again
+ // each frame so a key held before the pause cannot resume movement afterward.
+ if(g.pointOver){keys={};updateAbilityStatus();return;}
+ // Human servers have 15 seconds to begin each serve. Tossing itself has its own fault if missed.
+ if(!g.ball.inPlay&&!g.pointOver&&g.serveState==="ready"){
+  const activeServer=g.players.find(p=>p.control===g.serveControl);
+  if(activeServer&&!activeServer.bot){g.serveClock=Math.max(0,(g.serveClock??15)-dt);const remaining=Math.ceil(g.serveClock);
+   const serveNumber=g.serveAttempt===1?"First serve":"Second serve";
+   document.getElementById("serveInfo").textContent=`${serveNumber} — ${remaining}s to serve. Press your hit key to toss.`;
+   if(g.serveClock<=0){registerServeFault();updateAbilityStatus();return;}
+  }
+ }
+ for(const p of g.players){
+  p.hitCooldown=Math.max(0,p.hitCooldown-dt);p.swingCooldown=Math.max(0,p.swingCooldown-dt);p.flash=Math.max(0,p.flash-dt);p.abilityTimer=Math.max(0,p.abilityTimer-dt);p.dashCooldown=Math.max(0,p.dashCooldown-dt);p.dashTime=Math.max(0,p.dashTime-dt);p.jumpCooldown=Math.max(0,p.jumpCooldown-dt);p.botSprintTimer=Math.max(0,p.botSprintTimer-dt);p.botSprintCooldown=Math.max(0,p.botSprintCooldown-dt);p.botDashCooldown=Math.max(0,p.botDashCooldown-dt);p.boost=Math.max(0,p.boost-dt);if(p.boost===0)p.boostMultiplier=1;p.reachBoost=Math.max(0,p.reachBoost-dt);p.godlyTimer=Math.max(0,p.godlyTimer-dt);if(p.godlyTimer===0)p.godlyEffect=null;
+  if(p.jumpHeight>0||p.jumpVelocity>0){p.jumpHeight+=p.jumpVelocity*dt;p.jumpVelocity-=950*dt;if(p.jumpHeight<=0){p.jumpHeight=0;p.jumpVelocity=0;}}
+  const isServer=p.team===g.serveTeam&&p.control===g.serveControl&&!g.ball.inPlay&&(g.serveState==="ready"||g.serveState==="tossed");
+  if(p.bot){if(!isServer)botUpdate(p,dt);else clampPlayerToHalfForServe(p);continue;}
+  if(isServer)continue; // Server stays behind the baseline during the toss.
+  const c=controlsFor(p),inputMag=Math.hypot(c.x,c.y),mag=inputMag||1,sprint=c.sprint?1.60:1;
+  if(inputMag>0){const ix=c.x/inputMag,iy=c.y/inputMag;p.aimX=clamp(p.aimX*.35+ix*.65,-1,1);p.aimY=clamp(p.aimY*.35+iy*.65,-1,1);}
+  else{const aimDecay=Math.exp(-dt*2.8);p.aimX*=aimDecay;p.aimY*=aimDecay;}
+  const speed=p.baseSpeed*(p.godlyEffect==="sunGod"?2.35:p.godlyEffect==="honoredOne"?2.05:p.boost>0?Math.max(1.42,p.boostMultiplier||1.42):1)*sprint;
+  if(p.dashTime>0){p.x+=p.dashVX*dt;p.y+=p.dashVY*dt;}else{p.x+=c.x/mag*speed*dt;p.y+=c.y/mag*speed*dt;}
+  clampPlayerToHalf(p);
+ }
+ const b=g.ball;
+ // Bots toss first, then strike the airborne ball for their serve.
+ if(!b.inPlay&&!g.pointOver&&g.serveTeam==="B"&&g.players.some(p=>p.team==="B"&&p.bot)){
+  g.serveDelay+=dt;const server=g.players.find(p=>p.control===g.serveControl)||g.players.find(p=>p.team==="B"&&p.bot);
+  if(g.serveState==="ready"&&g.serveDelay>.65){beginServeToss("B",server.control);g.serveDelay=0;}
+  else if(g.serveState==="tossed"){g.serveActionTimer+=dt;if(g.serveActionTimer>.24&&b.z>25){strikeServe("B",server.control);g.serveActionTimer=0;}}
+ }
+ if(g.serveState==="tossed"&&!b.inPlay&&!g.pointOver){
+  g.serveAimPhase=(g.serveAimPhase||0)+dt*2.35;
+  b.z+=b.vz*dt;b.vz-=390*dt;
+  if(b.vz>0&&b.vz<105)b.vz=Math.max(0,b.vz-dt*35);g.serveActionTimer+=dt;
+  if(b.z<=0&&b.vz<0){b.z=0;registerServeFault();}
+  updateAbilityStatus();return;
+ }
+ if(!b.inPlay||g.pointOver){updateAbilityStatus();return;}
+ if(b.freezeTimer>0){b.freezeTimer=Math.max(0,b.freezeTimer-dt);if(b.freezeTimer===0){b.vx=b.freezeVx;b.vy=b.freezeVy;b.vz=b.freezeVz;}updateAbilityStatus();return;}
+ if(b.curveTime>0){b.vx+=(b.curveAccelX||0)*dt;b.curveTime=Math.max(0,b.curveTime-dt);if(b.curveTime===0)b.curveAccelX=0;}
+ const previousY=b.y;b.x+=b.vx*dt;b.y+=b.vy*dt;b.z+=b.vz*dt;b.vz-=650*dt;
+ // A low ball contacting the net loses the rally (or faults on a serve).
+ if((previousY-netY)*(b.y-netY)<=0&&b.z<24){if(b.isServe){b.netTouched=true;b.vx*=.91;b.vy*=.91;}else{resetPoint(oppositeTeam(b.side));return;}}
+ if(b.z<=0&&b.vz<0){
+  b.z=0;
+  // The first bounce of a serve must be inside the diagonal service box.
+  if(b.isServe&&b.bounces===0){
+   if(!ballInBounds(b.x,b.y,true)||!isLegalServeLanding(b)){registerServeFault();return;}
+   if(b.netTouched){registerServeLet();return;}
+   b.isServe=false;b.netTouched=false;b.bounces=1;b.vz=b.bouncePower?205:135;b.vx*=b.bouncePower?.84:.70;b.vy*=b.bouncePower?.84:.70;b.bouncePower=0;
+  }else if(b.bounces>=1){
+   // Two bounces without a return: the side that hit the ball last wins the point.
+   resetPoint(b.side);return;
+  }else{
+   // Out is judged on the landing, using singles or doubles sidelines as appropriate.
+   if(!ballInBounds(b.x,b.y,false)){resetPoint(oppositeTeam(b.side),"out");return;}
+   // A shot that lands on the hitter's own side is a fault and loses the point immediately.
+   const landedOnHitterSide=b.side==="A"?b.y>netY:b.y<netY;
+   if(landedOnHitterSide){resetPoint(oppositeTeam(b.side));return;}
+   b.bounces=1;b.vz=b.bouncePower?205:135;b.vx*=b.bouncePower?.84:.72;b.vy*=b.bouncePower?.84:.72;b.bouncePower=0;
+  }
+ }
+ updateAbilityStatus();
+}
+function clampPlayerToHalfForServe(p){
+ const xb=courtXBounds();p.x=clamp(p.x,xb.left,xb.right);
+ // A server can stand just outside its own baseline, but never near or across the net.
+ p.y=p.team==="A"?clamp(p.y,netY+24,court.y+court.h+14):clamp(p.y,court.y-14,netY-24);
+}
+function updateAbilityStatus(){
+ const el=document.getElementById("abilityStatus"),fill=document.getElementById("abilityCooldownFill");if(!el||!fill)return;
+ if(!game){el.textContent="Ability ready";fill.style.width="100%";fill.classList.remove("cooling");return;}
+ const p=game.players.find(q=>q.control==="p1")||game.players.find(q=>q.team==="A"&&!q.bot);if(!p)return;
+ const max=p.abilityMax||30,remaining=Math.max(0,p.abilityTimer||0),progress=Math.max(0,Math.min(1,1-remaining/max));fill.style.width=(progress*100)+"%";fill.classList.toggle("cooling",remaining>0);
+ el.textContent=remaining>0?`Power recharging · ${Math.ceil(remaining)}s`:`Power ready · ${save.equippedGodly!=="Rookie"?save.equippedGodly:save.equipped}`;
+}
+
+function loop(now){
+ if(!game)return;
+ const dt=Math.min(.033,(now-lastTime)/1000||0);lastTime=now;
+ if(game.paused&&game.resumeCountdownUntil){
+  const msLeft=game.resumeCountdownUntil-now;
+  const countdown=document.getElementById("pauseCountdown");
+  if(msLeft<=0){game.paused=false;game.resumeCountdownUntil=0;keys={};document.getElementById("pauseOverlay").classList.remove("show");document.getElementById("resumeButton").disabled=false;document.getElementById("resumeButton").textContent="Resume · 3-second countdown";lastTime=now;}
+  else if(countdown){countdown.textContent=String(Math.max(1,Math.ceil(msLeft/1000)));}
+ }
+ if(!game.matchOver&&!game.paused)update(dt);
+ draw();
+ if(!game.matchOver)raf=requestAnimationFrame(loop);else raf=0;
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);const g=game;if(!g){drawCourt();return;}drawCourt();
+ for(const p of g.players){ctx.save();if(p.clone)ctx.globalAlpha=.64;const profile=botProfiles[g.diff]||botProfiles.medium;let fill=p.isVerity?"#f7f7f0":p.bot?profile.color:p.team==="A"?"#b9ff68":"#ff78b7",outline=p.isVerity?"#fff04a":fill;if(p.godlyTimer>0&&p.godlyEffect==="honoredOne")outline="#f4f7ff";else if(p.godlyTimer>0&&p.godlyEffect==="sunGod")outline="#ffe36b";const drawY=p.y-p.jumpHeight;
+  // The shadow stays on the ground, making the jump height easy to read.
+  ctx.globalAlpha=Math.max(.18,.45-p.jumpHeight/230);ctx.fillStyle="#02080d";ctx.beginPath();ctx.ellipse(p.x,p.y+5,p.r*1.15,p.r*.48,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+  ctx.shadowColor=outline;ctx.shadowBlur=(p.flash>0||p.godlyTimer>0||p.jumpHeight>15)?25:9;ctx.fillStyle=fill;ctx.beginPath();ctx.arc(p.x,drawY,p.r+(p.flash>0?3:0),0,Math.PI*2);ctx.fill();ctx.lineWidth=p.godlyTimer>0?4:2;ctx.strokeStyle=outline;ctx.stroke();ctx.shadowBlur=0;if(p.isVerity){
+   // Verity is a white smiley, turns angry after the player has beaten it once.
+   ctx.fillStyle="#10131a";ctx.beginPath();ctx.arc(p.x-5,drawY-3,2.8,0,Math.PI*2);ctx.arc(p.x+5,drawY-3,2.8,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle="#10131a";ctx.lineWidth=2.2;ctx.beginPath();
+   if(game.verityMad){ctx.moveTo(p.x-9,drawY-9);ctx.lineTo(p.x-2,drawY-6);ctx.moveTo(p.x+2,drawY-6);ctx.lineTo(p.x+9,drawY-9);ctx.moveTo(p.x-6,drawY+7);ctx.lineTo(p.x-2,drawY+4);ctx.lineTo(p.x+3,drawY+4);ctx.lineTo(p.x+6,drawY+7);}
+   else{ctx.arc(p.x,drawY+1,7,.18*Math.PI,.82*Math.PI,false);}ctx.stroke();
+   if(Math.floor(performance.now()/95)%5===0){ctx.strokeStyle="#ff3ff3";ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x+1,drawY,p.r+5,-.8,1.1);ctx.stroke();}
+  }else{
+   ctx.fillStyle="#0a1b26";ctx.beginPath();ctx.arc(p.x-4,drawY-3,2.5,0,Math.PI*2);ctx.arc(p.x+4,drawY-3,2.5,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle="#0a1b26";ctx.lineWidth=1.7;ctx.beginPath();ctx.arc(p.x,drawY+1,5,.18*Math.PI,.82*Math.PI,false);ctx.stroke();
+   // Each bot has a small signature accessory in its difficulty color.
+   if(p.bot&&!p.clone&&g.diff==="easy"){ctx.save();ctx.translate(p.x+9,drawY-12);ctx.rotate(-.48);ctx.fillStyle="#adffb2";ctx.beginPath();ctx.ellipse(0,0,4,8,0,0,Math.PI*2);ctx.fill();ctx.restore();}
+   else if(p.bot&&!p.clone&&g.diff==="medium"){ctx.fillStyle="#e8f9ff";ctx.beginPath();ctx.moveTo(p.x,drawY-p.r-7);ctx.lineTo(p.x+5,drawY-p.r);ctx.lineTo(p.x+1,drawY-p.r+1);ctx.lineTo(p.x+4,drawY-p.r+7);ctx.lineTo(p.x-4,drawY-p.r+0);ctx.lineTo(p.x,drawY-p.r);ctx.closePath();ctx.fill();}
+   else if(p.bot&&!p.clone&&g.diff==="hard"){ctx.fillStyle="#ffb2b8";ctx.beginPath();ctx.moveTo(p.x-9,drawY-p.r+1);ctx.lineTo(p.x-5,drawY-p.r-7);ctx.lineTo(p.x-1,drawY-p.r+1);ctx.moveTo(p.x+1,drawY-p.r+1);ctx.lineTo(p.x+5,drawY-p.r-7);ctx.lineTo(p.x+9,drawY-p.r+1);ctx.fill();}
+  }
+  ctx.fillStyle=p.isVerity?"#fff04a":"#f4fbff";ctx.font=p.isVerity?"900 10px monospace":"bold 11px system-ui";ctx.textAlign="center";ctx.fillText(p.bot?(p.botName||"BOT"):p.control==="p1"?"P1":p.control==="p2"?"P2":p.control==="p1b"?"P1-2":p.control==="p2b"?"P2-2":"BOT",p.x,drawY-23);
+  if(p.activeShot){ctx.fillStyle="#fff";ctx.font="10px system-ui";ctx.fillText("✦ charged",p.x,drawY+30);}if(p.jumpHeight>12){ctx.fillStyle="#fff2ad";ctx.font="bold 9px system-ui";ctx.fillText("JUMP SPIKE",p.x,drawY+35);}if(p.dashCooldown>0){ctx.fillStyle="#d2e5ef";ctx.font="9px system-ui";ctx.fillText("dash "+p.dashCooldown.toFixed(1),p.x,drawY+42);}if(p.godlyTimer>0){ctx.fillStyle="#fff2ad";ctx.font="bold 9px system-ui";ctx.fillText(p.godlyEffect==="sunGod"?"SUN POWER":"HONORED",p.x,drawY+53);}ctx.restore();
+ }
+ const b=g.ball;
+ if(b.inPlay&&b.side!=="A"&&b.y>=netY&&!(b.isServe&&b.bounces===0)&&g.players.some(p=>!p.bot&&p.team==="A"&&Math.abs(p.x-b.x)<=78&&Math.abs(p.y-b.y)<=76&&p.swingCooldown<=0&&p.hitCooldown<=0)){
+  const p=[...g.players].filter(p=>!p.bot&&p.team==="A").sort((a,b)=>distance(a,g.ball)-distance(b,g.ball))[0];
+  if(p&&distance(p,b)<=112){ctx.save();ctx.strokeStyle="#fff5b5";ctx.lineWidth=3;ctx.setLineDash([5,4]);ctx.beginPath();ctx.arc(p.x,p.y-p.jumpHeight,p.r+10,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle="#fff5b5";ctx.font="bold 13px system-ui";ctx.textAlign="center";ctx.fillText("HIT NOW",p.x,p.y-p.jumpHeight-38);ctx.restore();}
+ }
+ if(b.inPlay&&b.side!=="B"&&b.y<=netY&&!(b.isServe&&b.bounces===0)&&g.players.some(p=>!p.bot&&p.team==="B"&&Math.abs(p.x-b.x)<=78&&Math.abs(p.y-b.y)<=76&&p.swingCooldown<=0&&p.hitCooldown<=0)){
+  const p=[...g.players].filter(p=>!p.bot&&p.team==="B").sort((a,b)=>distance(a,g.ball)-distance(b,g.ball))[0];
+  if(p&&distance(p,b)<=112){ctx.save();ctx.strokeStyle="#fff5b5";ctx.lineWidth=3;ctx.setLineDash([5,4]);ctx.beginPath();ctx.arc(p.x,p.y-p.jumpHeight,p.r+10,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle="#fff5b5";ctx.font="bold 13px system-ui";ctx.textAlign="center";ctx.fillText("HIT NOW",p.x,p.y-p.jumpHeight-38);ctx.restore();}
+ }
+ if(b.inPlay&&b.trailUntil>performance.now()){
+  const v=Math.hypot(b.vx,b.vy)||1,len=clamp(v*.075,20,78),fade=clamp((b.trailUntil-performance.now())/850,0,1);
+  ctx.save();ctx.globalAlpha=.74*fade;ctx.strokeStyle=b.trailColor||"#d9ff70";ctx.lineWidth=clamp(v/170,2.5,7);ctx.lineCap="round";ctx.shadowColor=b.trailColor||"#d9ff70";ctx.shadowBlur=13;ctx.beginPath();ctx.moveTo(b.x-b.vx/v*len,b.y-b.z-b.vy/v*len);ctx.lineTo(b.x,b.y-b.z);ctx.stroke();ctx.restore();
+ }
+ ctx.save();ctx.globalAlpha=.2;ctx.fillStyle="#000";ctx.beginPath();ctx.ellipse(b.x,b.y+Math.max(0,b.z)*.15+8,10,4,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle="#d9ff70";ctx.shadowColor="#d9ff70";ctx.shadowBlur=12;ctx.beginPath();ctx.arc(b.x,b.y-b.z,7,0,Math.PI*2);ctx.fill();ctx.restore();
+ if(g.messageTimer>0){ctx.fillStyle="#f4fbff";ctx.font="bold 20px system-ui";ctx.textAlign="center";ctx.shadowColor="#07121d";ctx.shadowBlur=8;ctx.fillText(g.pointText,W/2,28);ctx.shadowBlur=0;}
+ if(g.diff==="impossible"){
+  ctx.save();ctx.textAlign="center";ctx.font="900 12px monospace";ctx.fillStyle="#fff04a";ctx.shadowColor="#ff32e2";ctx.shadowBlur=8;
+  const boss=g.players.find(p=>p.isVerity);if(boss)ctx.fillText((g.verityMad?"ANGRY  //  ":"WATCHING  //  ")+(g.verityStatusText||"WATCHING"),boss.x,Math.max(court.y+14,boss.y-48));ctx.restore();
+ }
+ if(!b.inPlay&&!g.matchOver){ctx.fillStyle="#ffffffd8";ctx.font="bold 13px system-ui";ctx.textAlign="center";const botServing=g.players.some(p=>p.control===g.serveControl&&p.bot);const label=g.serveState==="tossed"?(botServing?"BOT TOSSING":"HIT THE TOSSED BALL"):(botServing?"BOT PREPARING TO SERVE":(g.serveAttempt===1?"FIRST SERVE: PRESS TO TOSS":"SECOND SERVE: PRESS TO TOSS"));ctx.fillText(label,480,g.serveTeam==="A"?court.y+court.h-67:court.y+67);}
+
+
+ // Serve aiming and power meter: a compact, seamless green-to-red arrow.
+ if(!b.inPlay&&!g.matchOver&&g.serveState==="tossed"&&g.players.some(p=>p.control===g.serveControl&&!p.bot)){
+  const server=g.players.find(p=>p.control===g.serveControl),cx=W/2,gy=g.serveTeam==="A"?H-35:35,gw=154,gh=13;
+  const phase=g.serveAimPhase||0,aim=Math.sin(phase),ax=cx+aim*(gw/2-8);
+  const charge=serveCharge&&serveCharge.control===g.serveControl?Math.min(1,(performance.now()-serveCharge.started)/1250):0;
+  ctx.save();ctx.globalAlpha=.95;ctx.fillStyle="#06121ddd";ctx.beginPath();ctx.roundRect(cx-gw/2-14,gy-22,gw+28,48,12);ctx.fill();
+  const grad=ctx.createLinearGradient(cx-gw/2,0,cx+gw/2,0);grad.addColorStop(0,"#078a27");grad.addColorStop(.23,"#62b900");grad.addColorStop(.48,"#ffe500");grad.addColorStop(.72,"#ff8a00");grad.addColorStop(1,"#ff1717");
+  ctx.fillStyle="#142d37";ctx.beginPath();ctx.roundRect(cx-gw/2,gy-gh/2,gw,gh,7);ctx.fill();ctx.save();ctx.beginPath();ctx.roundRect(cx-gw/2,gy-gh/2,gw,gh,7);ctx.clip();ctx.fillStyle=grad;ctx.fillRect(cx-gw/2,gy-gh/2,gw*charge,gh);ctx.restore();
+  ctx.strokeStyle=grad;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ax,gy-13);ctx.lineTo(ax,gy+13);ctx.stroke();ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(ax,gy-15);ctx.lineTo(ax-6,gy-7);ctx.lineTo(ax+6,gy-7);ctx.closePath();ctx.fill();
+  ctx.fillStyle="#f4fbff";ctx.font="bold 10px system-ui";ctx.textAlign="center";ctx.fillText(serveCharge?`POWER ${Math.round(charge*100)}%`:"AIM: LEFT CORNER  ↔  RIGHT CORNER",cx,gy-26);ctx.restore();
+ }
+ if(g.serveFeedback){
+  ctx.save();ctx.fillStyle="#06121de8";ctx.beginPath();ctx.roundRect(230,185,500,170,22);ctx.fill();
+  ctx.textAlign="center";ctx.shadowColor="#000";ctx.shadowBlur=12;ctx.fillStyle=g.serveFeedback.kind==="let"?"#b9ff68":"#ff6d6d";ctx.font="900 66px system-ui";ctx.fillText(g.serveFeedback.title,W/2,255);
+  ctx.shadowBlur=0;ctx.fillStyle="#f4fbff";ctx.font="700 21px system-ui";ctx.fillText(g.serveFeedback.subtitle,W/2,300);ctx.restore();
+ }
+}
+function drawCourt(){
+ const grd=ctx.createLinearGradient(0,0,0,H);grd.addColorStop(0,"#0d2838");grd.addColorStop(1,"#071721");ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+ ctx.fillStyle="#1d785f";ctx.fillRect(court.x,court.y,court.w,court.h);ctx.fillStyle="#237f68";ctx.fillRect(court.x+24,court.y+18,court.w-48,court.h-36);
+ // Verity bends the court with restrained glitch slices. All official court markings are
+ // drawn afterward, so every white boundary/service line remains clear and continuous.
+ if(game&&game.diff==="impossible"){
+  const frame=Math.floor(performance.now()/58);ctx.save();ctx.globalAlpha=.16;
+  for(let i=0;i<12;i++){const seed=Math.sin(frame*12.9898+i*78.233)*43758.5453;const r=seed-Math.floor(seed);const y=court.y+r*court.h;const x=court.x+((r*frame*13+i*53)%(court.w));const width=22+Math.abs(Math.sin(frame+i))*110;ctx.fillStyle=(i+frame)%3===0?"#fff04a":(i+frame)%3===1?"#ff35dc":"#45f4ff";ctx.fillRect(x,y,width,2+Math.abs(Math.cos(frame+i))*5);}
+  ctx.globalAlpha=.10;ctx.fillStyle="#fff04a";ctx.fillRect(court.x+((frame*7)%court.w),court.y,2,court.h);ctx.restore();
+ }
+ ctx.strokeStyle="#d9f8e9";ctx.lineWidth=3;ctx.strokeRect(court.x,court.y,court.w,court.h);
+ const singlesL=court.x+court.w*.12,singlesR=court.x+court.w*.88,serviceTop=netY-78,serviceBottom=netY+78;
+ ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(singlesL,court.y);ctx.lineTo(singlesL,court.y+court.h);ctx.moveTo(singlesR,court.y);ctx.lineTo(singlesR,court.y+court.h);ctx.moveTo(court.x,netY);ctx.lineTo(court.x+court.w,netY);ctx.moveTo(singlesL,serviceTop);ctx.lineTo(singlesR,serviceTop);ctx.moveTo(singlesL,serviceBottom);ctx.lineTo(singlesR,serviceBottom);ctx.moveTo(W/2,serviceTop);ctx.lineTo(W/2,serviceBottom);ctx.stroke();
+ // Small center marks on the baselines, familiar from a real tennis court.
+ ctx.beginPath();ctx.moveTo(W/2,court.y);ctx.lineTo(W/2,court.y+14);ctx.moveTo(W/2,court.y+court.h-14);ctx.lineTo(W/2,court.y+court.h);ctx.stroke();
+ ctx.fillStyle="#e7f8ff";ctx.fillRect(court.x-3,netY-5,court.w+6,10);ctx.fillStyle="#d9e9ef";ctx.fillRect(court.x,netY-2,court.w,4);ctx.strokeStyle="#9dbac7";ctx.lineWidth=1;for(let x=court.x+5;x<court.x+court.w;x+=10){ctx.beginPath();ctx.moveTo(x,netY-5);ctx.lineTo(x,netY+5);ctx.stroke();}
+}
+
+// Re-save a merged snapshot on startup so the main and backup copies stay in sync.
+persist();renderAbilities();drawCourt();
+</script>
+</body>
+</html>
