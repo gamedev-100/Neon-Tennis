@@ -82,7 +82,7 @@ header{max-width:1200px;margin:auto;padding:20px 24px;display:flex;align-items:c
   </div>
   <div class="panel"><div class="eyebrow">How to play</div><div class="feature-list">
    <div class="feature"><span>🎾</span><div><b>Time your shots</b><small>Move close to the ball, then hit it across the net.</small></div></div>
-   <div class="feature"><span>⚡</span><div><b>Sprint and dash</b><small>Hold Left Shift to sprint. Press Q to dash. Jump with Space.</small></div></div>
+   <div class="feature"><span>⚡</span><div><b>Movement and dash</b><small>Move around the court, press Q to dash, and use Space to jump.</small></div></div>
    <div class="feature"><span>🌙</span><div><b>Mix up your shots</b><small>Use lobs, spikes, and ability-powered returns.</small></div></div>
    <div class="feature"><span>🏆</span><div><b>Collect the whole roster</b><small>Unlock 40 abilities and two ultra-rare Godly powers.</small></div></div>
   </div></div>
@@ -328,7 +328,7 @@ function renderAbilities(){
 }
 
 function randomGlitchString(length){
- const glyphs="█▓▒░╳╬⌁⌇⌖⟁⧖⍟⫷⫸⟊⟟⟒⧫⩙⫰ЖΔλΨϟØЖ〄̸̶̷͛͌͟͢͞͝";
+ const glyphs="█▓▒░╳╬⌁⌇⌖⟁⧖⍟⫷⫸⟊⟟⟒⧫⩙⫰ЖΔλΨϟØЖ〄̸̶̷͛͌͟͢͞͝";
  let out="";for(let i=0;i<length;i++)out+=glyphs[Math.floor(Math.random()*glyphs.length)];return out;
 }
 function renderRarityIndex(){
@@ -376,10 +376,23 @@ function rollRandomPrize(){
  const pool=rarity==="Godly"?godlyData:abilityData.filter(a=>a.rarity===rarity);
  return rarity==="Godly"?godlyData[Math.random()<.5?0:1]:pool[Math.floor(Math.random()*pool.length)];
 }
+function rarityIsComplete(prize){
+ const isGodly=prize.type==="godly";
+ const owned=isGodly?save.ownedGodly:save.owned;
+ const rarityPool=isGodly?godlyData:abilityData.filter(item=>item.rarity===prize.rarity);
+ return rarityPool.length>0&&rarityPool.every(item=>owned.includes(item.name));
+}
+function duplicateRefund(prize){
+ if(rarityIsComplete(prize))return 100;
+ return ({Godly:1500,Legendary:650,Epic:350,Rare:100,Common:50})[prize.rarity]??50;
+}
 function grantRoll(prize){
  const isGodly=prize.type==="godly";const owned=isGodly?save.ownedGodly:save.owned;
- if(owned.includes(prize.name))return {prize,duplicate:true,unlocked:false};
- owned.push(prize.name);return {prize,duplicate:false,unlocked:true};
+ if(owned.includes(prize.name)){
+  const rarityComplete=rarityIsComplete(prize),refund=duplicateRefund(prize);save.coins+=refund;
+  return {prize,duplicate:true,unlocked:false,refund,rarityComplete};
+ }
+ owned.push(prize.name);return {prize,duplicate:false,unlocked:true,refund:0,rarityComplete:false};
 }
 function setRollingDisabled(disabled){for(const id of ["spinButton","rollFiveButton","rollTenButton","customRollButton"]){const b=document.getElementById(id);if(b)b.disabled=disabled;}}
 function setRollError(message){const el=document.getElementById("rollError");if(el)el.textContent=message;}
@@ -398,7 +411,7 @@ function rollBatch(count){
  if(save.coins<totalCost){setRollError(`Not enough coins for ${count} rolls. You need ${totalCost.toLocaleString("en-US")} coins but have ${save.coins.toLocaleString("en-US")}.`);return;}
  setRollError("");save.coins-=totalCost;const results=[];
  for(let i=0;i<count;i++)results.push(grantRoll(rollRandomPrize()));
- persist();renderAbilities();setNotice(`Completed ${count} rolls. ${results.filter(r=>r.unlocked).length} new unlock(s); duplicates provide no reward.`);
+ persist();renderAbilities();const refunds=results.reduce((sum,r)=>sum+(r.refund||0),0);setNotice(`Completed ${count} rolls. ${results.filter(r=>r.unlocked).length} new unlock(s); ${refunds.toLocaleString("en-US")} duplicate coins returned.`);
  spinning=true;setRollingDisabled(true);showBatchResults(results);
 }
 function rollCustomBatch(){const el=document.getElementById("customRollCount");const count=Number(el?.value);rollBatch(count);}
@@ -433,8 +446,8 @@ function showGiftReveal(result){
  document.getElementById("giftIcon").textContent=result.duplicate?"📦":"🎁";
  document.getElementById("giftRarity").textContent=result.duplicate?"DUPLICATE · "+prize.rarity.toUpperCase():prize.rarity.toUpperCase()+" UNLOCK";
  document.getElementById("giftName").textContent=prize.name;
- document.getElementById("giftDescription").textContent=result.duplicate?"You already own this item. This roll gives no reward, refund, or bonus coins.":prize.desc;
- document.getElementById("giftDuplicateNote").textContent=result.duplicate?"Duplicate — the 100-coin cost remains spent.":(prize.type==="godly"?"A Godly power has joined your collection.":"Added to your collection. You can equip it below.");
+ document.getElementById("giftDescription").textContent=result.duplicate?`You already own this item. You received ${result.refund.toLocaleString("en-US")} coins back.`:prize.desc;
+ document.getElementById("giftDuplicateNote").textContent=result.duplicate?(result.rarityComplete?"This rarity collection is complete, so duplicates return 100 coins.":`Duplicate reward: ${result.refund.toLocaleString("en-US")} coins.`):(prize.type==="godly"?"A Godly power has joined your collection.":"Added to your collection. You can equip it below.");
  document.getElementById("batchRewards").style.display="none";scene.classList.remove("show");void scene.offsetWidth;scene.classList.add("show");
 }
 function skipRewardAnimation(){if(!currentRewardResult)return;clearTimeout(rewardAnimationTimer);clearTimeout(rewardReelStartTimer);showGiftReveal(currentRewardResult);}
@@ -442,11 +455,11 @@ function showBatchResults(results){
  const overlay=document.getElementById("rewardOverlay"),scene=document.getElementById("giftScene"),reelScene=document.getElementById("reelScene"),skip=document.getElementById("skipRevealButton"),batch=document.getElementById("batchRewards");
  clearTimeout(rewardAnimationTimer);clearTimeout(rewardReelStartTimer);currentRewardResult=null;skip.style.display="none";reelScene.style.display="none";overlay.classList.add("show");
  document.getElementById("giftIcon").textContent="🎁";document.getElementById("giftRarity").textContent="BATCH OPENED";document.getElementById("giftName").textContent=`${results.length} Rolls Complete`;
- const unlocked=results.filter(r=>r.unlocked),duplicates=results.filter(r=>r.duplicate).length;
- document.getElementById("giftDescription").textContent=`${unlocked.length} new unlock(s) · ${duplicates} duplicate(s). Duplicate rolls cost 100 coins and give nothing back.`;
- document.getElementById("giftDuplicateNote").textContent=unlocked.length?"Scroll horizontally through the new items you unlocked.":"No new items this time. Every result was already in your collection.";
+ const unlocked=results.filter(r=>r.unlocked),duplicateResults=results.filter(r=>r.duplicate),duplicates=duplicateResults.length,totalRefund=duplicateResults.reduce((sum,r)=>sum+r.refund,0);
+ document.getElementById("giftDescription").textContent=`${unlocked.length} new unlock(s) · ${duplicates} duplicate(s) · ${totalRefund.toLocaleString("en-US")} coins returned from duplicates.`;
+ document.getElementById("giftDuplicateNote").textContent=unlocked.length?"Scroll horizontally through the new items you unlocked.":"No new items this time. Your duplicate rewards have been returned as coins.";
  batch.style.display="flex";batch.innerHTML=unlocked.map(r=>`<article class="batch-reward-card"><div class="rarity ${r.prize.rarity.toLowerCase()}">${r.prize.rarity.toUpperCase()}</div><h3>${r.prize.name}</h3><p>${r.prize.desc}</p></article>`).join("");
- if(duplicates){batch.insertAdjacentHTML("beforeend",`<article class="batch-reward-card duplicate"><div class="rarity">DUPLICATES</div><h3>${duplicates} duplicate roll(s)</h3><p>No reward, refund, or bonus coins.</p></article>`);}
+ if(duplicates){const breakdown=duplicateResults.map(r=>`${r.prize.name}: +${r.refund.toLocaleString("en-US")} coins`).join(" · ");batch.insertAdjacentHTML("beforeend",`<article class="batch-reward-card duplicate"><div class="rarity">DUPLICATE REWARDS</div><h3>${duplicates} duplicate roll(s)</h3><p>${breakdown}</p><strong>Returned: ${totalRefund.toLocaleString("en-US")} coins</strong></article>`);}
  scene.classList.remove("show");void scene.offsetWidth;scene.classList.add("show");spinning=false;setRollingDisabled(false);renderAbilities();
 }
 function closeRewardOverlay(){clearTimeout(rewardAnimationTimer);clearTimeout(rewardReelStartTimer);document.getElementById("rewardOverlay").classList.remove("show");spinning=false;currentRewardResult=null;setRollingDisabled(false);renderAbilities();updateWallet();}
@@ -457,7 +470,7 @@ const guideContent={
  <ol><li><b>Start the toss:</b> Player 1 presses <kbd>F</kbd>. Player 2 presses <kbd>Shift</kbd> + <kbd>/</kbd> (the <kbd>?</kbd> key).</li><li><b>Wait for the ball to rise:</b> The ball appears slightly in front of your player. Let it rise into a hittable height.</li><li><b>Aim:</b> An arrow moves between the service-box corners. Watch its direction to choose your target corner.</li><li><b>Charge power:</b> Press and hold your hit key while the ball is airborne. The meter fills from green through yellow and orange to red.</li><li><b>Strike:</b> Release the hit key to serve. More charge gives more pace, but aim and timing still matter.</li><li><b>Faults and lets:</b> A serve that lands outside the correct diagonal service box displays <b>OUT</b> for two seconds. A first fault gives you a second serve; a second fault loses the point. If a serve clips the net but lands in the correct box, it is a <b>LET</b> and you serve again on the same attempt.</li></ol>
  <p>If you do not start a serve within 15 seconds, it counts as a fault. A toss that hits the ground before you strike it also counts as a fault.</p>`,
  play:`<p>Choose either <b>Set Gameplay</b> or <b>First to Five</b>. All four match modes are available in both categories.</p>
- <h3>Movement and shots</h3><ul><li><b>Player 1:</b> WASD to move, Space to jump, F to hit (jump first to spike), G to lob, hold Left Shift to sprint, Q to dash, E for your special power.</li><li><b>Player 2:</b> Arrow keys to move, / to jump, ? (Shift + /) to hit or spike while jumping, . to lob, M to sprint, , to dash, Right Shift for special power.</li><li>Move as you hit to influence the direction of your shot. A lob goes higher; a spike travels flatter and faster.</li><li>Stay on your own side of the net. The receiver must let a serve bounce. During rallies, return the ball after at most one bounce.</li></ul>
+ <h3>Movement and shots</h3><ul><li><b>Player 1:</b> WASD to move, Space to jump, F to hit. Press F while rising in a jump to lob; press F while descending to spike. Q to dash, E for your special power.</li><li><b>Player 2:</b> Arrow keys to move, / to jump, ? (Shift + /) to hit. Press ? while rising to lob; press ? while descending to spike. . for a lob from the ground, , to dash, Right Shift for special power.</li><li>Move as you hit to influence the direction of your shot. A lob goes higher; a spike travels flatter and faster.</li><li>Stay on your own side of the net. The receiver must let a serve bounce. During rallies, return the ball after at most one bounce.</li></ul>
  <h3>Scoring</h3><ul><li><b>First to Five:</b> the first team to earn five points wins the match.</li><li><b>Set Gameplay:</b> points use Love, 15, 30, 40, deuce, and advantage. Win four games by two for a set; at 4–4 a tiebreak decides the set. Matches are best of three sets.</li><li>Against bots, select Easy, Medium, or Hard before the match. Wins earn coins, and the Ability Lab uses coins to roll for new abilities.</li></ul>
  <h3>Special powers</h3><p>Use your equipped ability with its control key. Powers have a long 30-second cooldown, shown by the bar above the court. Godly powers are selected in the Ability Lab and are also activated by the special-power key.</p>`
 };
@@ -478,7 +491,7 @@ function clampPlayerToHalf(p){const xb=courtXBounds(),yb=playerYBounds(p);p.x=cl
 function ballInBounds(x,y,serve=false){const minX=serve?singlesLeft():courtXBounds().left;const maxX=serve?singlesRight():courtXBounds().right;return x>=minX&&x<=maxX&&y>=court.y&&y<=court.y+court.h;}
 function oppositeTeam(team){return team==="A"?"B":"A";}
 const matchTips=[
- "Wait for the toss to rise before striking your serve.","Aim your serve diagonally into the opposite service box.","A legal serve must land inside the diagonal service box.","A first serve fault gives you one more attempt; a second fault costs the point.","Stay behind your baseline while serving.","Hold Shift while moving to sprint across your half of the court.","Press Q for a short burst of movement; it does not teleport you.","Move toward the ball before swinging to improve your timing.","Lobs give the ball more height and can buy you time.","Jump, then press F near the ball to spike it downward.","Spikes are faster but travel flatter and have less hang time.","Don't stand too close to the net when defending a deep shot.","Watch the ball's shadow to judge where it will land.","Use the center of your court to recover after a wide shot.","Try aiming toward the opposite corner to move your opponent.","Your special power has a 30-second cooldown, so choose the right moment.","Sun God temporarily boosts speed, shot strength, and reach.","Honored One can freeze a live ball and improve speed, reach, and spin.","On defense, move early instead of waiting for the ball to get close.","In doubles, one player can cover the net while the other guards the back.","After a return, move back toward a balanced position.","Easy bots make mistakes, but they can still reach and return shots.","A ball that lands on your own side after your hit gives the point away.","Try a drop-style or softer shot when your opponent waits far back.","Do not swing while the ball is too far away; get into range first.","After the ball bounces once, you must return it before the next bounce.","Sprint for a short burst, then let go to regain better positioning.","A cross-court serve targets the opposite diagonal service box.","In local multiplayer, each side must stay on its half of the court.","Aiming your return away from a waiting opponent is often more useful than raw power.","Keep your eye on the rally: the last player to hit the ball determines its direction."
+ "Wait for the toss to rise before striking your serve.","Aim your serve diagonally into the opposite service box.","A legal serve must land inside the diagonal service box.","A first serve fault gives you one more attempt; a second fault costs the point.","Stay behind your baseline while serving.","Move early to get into position before the ball reaches you.","Press Q for a short burst of movement; it does not teleport you.","Move toward the ball before swinging to improve your timing.","Lobs give the ball more height and can buy you time.","Press F while rising in a jump to send a high lob.","Press F while descending in a jump to drive a fast spike.","Spikes are faster but travel flatter and have less hang time.","Don't stand too close to the net when defending a deep shot.","Watch the ball's shadow to judge where it will land.","Use the center of your court to recover after a wide shot.","Try aiming toward the opposite corner to move your opponent.","Your special power has a 30-second cooldown, so choose the right moment.","Sun God temporarily boosts speed, shot strength, and reach.","Honored One can freeze a live ball and improve speed, reach, and spin.","On defense, move early instead of waiting for the ball to get close.","In doubles, one player can cover the net while the other guards the back.","After a return, move back toward a balanced position.","Easy bots make mistakes, but they can still reach and return shots.","A ball that lands on your own side after your hit gives the point away.","Try a drop-style or softer shot when your opponent waits far back.","Do not swing while the ball is too far away; get into range first.","After the ball bounces once, you must return it before the next bounce.","Recover toward the center after sending your opponent wide.","A cross-court serve targets the opposite diagonal service box.","In local multiplayer, each side must stay on its half of the court.","Aiming your return away from a waiting opponent is often more useful than raw power.","Keep your eye on the rally: the last player to hit the ball determines its direction."
 ];
 function isLegalServeLanding(b){
  const serverTeam=b.side,targetRight=b.targetRight;
@@ -520,8 +533,8 @@ function startGame(mode,diffChoice,scoringMode="set"){
  const tip=matchTips[Math.floor(Math.random()*matchTips.length)];document.getElementById("matchTipText").textContent=tip;
  if(game.diff==="impossible"){game.verityStatusText=game.verityBuffs.length?"ACTIVE: "+game.verityBuffs.map(b=>VERITY_BUFF_LABELS[b]).join(" + "):"WATCHING";}
  document.getElementById("controlHints").innerHTML=(mode==="friend"||mode==="versus")?
- '<div class="control-card"><b>Player 1</b><br><kbd>W A S D</kbd> move · <kbd>Space</kbd> jump · <kbd>F</kbd> hit / airborne spike · <kbd>G</kbd> lob<br><kbd>Left Shift</kbd> sprint · <kbd>Q</kbd> dash · <kbd>E</kbd> power</div><div class="control-card"><b>Player 2</b><br><kbd>↑ ← ↓ →</kbd> move · <kbd>/</kbd> jump · <kbd>?</kbd> hit / airborne spike (Left Shift + /) · <kbd>.</kbd> lob<br><kbd>/</kbd> jump · <kbd>,</kbd> dash · <kbd>M</kbd> sprint · <kbd>Right Shift</kbd> power</div>' :
- '<div class="control-card"><b>Your controls</b><br><kbd>W A S D</kbd> move · <kbd>Space</kbd> jump · <kbd>F</kbd> hit / airborne spike · <kbd>G</kbd> lob<br><kbd>Left Shift</kbd> sprint · <kbd>Q</kbd> dash · <kbd>E</kbd> special power</div><div class="control-card"><b>Serving</b><br>Press your hit key once to toss, then press it again while the ball is airborne. During rallies, hit normally on the ground and spike while jumping. Lobs use G for Player 1 and . for Player 2.</div>';
+ '<div class="control-card"><b>Player 1</b><br><kbd>W A S D</kbd> move · <kbd>Space</kbd> jump · <kbd>F</kbd> hit (rising jump = lob, falling jump = spike)<br><kbd>Q</kbd> dash · <kbd>E</kbd> power</div><div class="control-card"><b>Player 2</b><br><kbd>↑ ← ↓ →</kbd> move · <kbd>/</kbd> jump · <kbd>?</kbd> hit (rising jump = lob, falling jump = spike)<br><kbd>.</kbd> ground lob · <kbd>,</kbd> dash · <kbd>Right Shift</kbd> power</div>' :
+ '<div class="control-card"><b>Your controls</b><br><kbd>W A S D</kbd> move · <kbd>Space</kbd> jump · <kbd>F</kbd> hit (rising jump = lob, falling jump = spike)<br><kbd>Q</kbd> dash · <kbd>E</kbd> special power</div><div class="control-card"><b>Serving</b><br>Press your hit key once to toss, then press it again while the ball is airborne. Release to serve. During rallies, use F for a normal ground hit, a lob while rising, and a spike while falling.</div>';
  showScreen("gameScreen");updateAbilityStatus();lastTime=performance.now();raf=requestAnimationFrame(loop);
 }
 
@@ -727,7 +740,6 @@ window.addEventListener("keydown",e=>{
   return;
  }
  if(k==="f")tryHit("p1","auto",true);
- if(k==="g")tryHit("p1","lob");
  if(k===" ")jump("p1");
  if(k==="e")useAbility("p1");
  if(k==="q")dash("p1");
@@ -739,11 +751,11 @@ window.addEventListener("keydown",e=>{
 window.addEventListener("keyup",e=>{if(game?.paused){keys={};return;}if(serveCharge){const control=serveCharge.control,team=serveCharge.team;const playerOneHitRelease=e.key.toLowerCase()==="f"||(game?.mode==="solo"&&e.key==="?");const playerTwoHitRelease=e.key==="?"||(e.code==="Slash"&&e.shiftKey);if((control==="p1"&&playerOneHitRelease)||(control==="p2"&&playerTwoHitRelease)){if(game&&game.serveState==="tossed"&&game.ball.z>16)strikeServe(team,control);else serveCharge=null;}}keys[e.key.toLowerCase()]=false;if(e.code==="ShiftLeft")keys.shiftLeft=false;if(e.code==="ShiftRight")keys.shiftRight=false;});
 function controlsFor(p){
  if(p.control==="p1"||p.control==="p1b"){
-  if(game?.mode==="solo")return {x:((keys.d||keys.arrowright)?1:0)-((keys.a||keys.arrowleft)?1:0),y:((keys.s||keys.arrowdown)?1:0)-((keys.w||keys.arrowup)?1:0),sprint:!!(keys.shiftLeft||keys.m)};
-  return {x:(keys.d?1:0)-(keys.a?1:0),y:(keys.s?1:0)-(keys.w?1:0),sprint:!!keys.shiftLeft};
+  if(game?.mode==="solo")return {x:((keys.d||keys.arrowright)?1:0)-((keys.a||keys.arrowleft)?1:0),y:((keys.s||keys.arrowdown)?1:0)-((keys.w||keys.arrowup)?1:0)};
+  return {x:(keys.d?1:0)-(keys.a?1:0),y:(keys.s?1:0)-(keys.w?1:0)};
  }
- if(p.control==="p2"||p.control==="p2b")return {x:(keys.arrowright?1:0)-(keys.arrowleft?1:0),y:(keys.arrowdown?1:0)-(keys.arrowup?1:0),sprint:!!keys.m};
- return {x:0,y:0,sprint:false};
+ if(p.control==="p2"||p.control==="p2b")return {x:(keys.arrowright?1:0)-(keys.arrowleft?1:0),y:(keys.arrowdown?1:0)-(keys.arrowup?1:0)};
+ return {x:0,y:0};
 }
 function jump(control){
  if(!game||game.matchOver||game.paused||game.pointOver||game.serveFeedback)return;
@@ -769,8 +781,12 @@ function tryHit(control,type="normal",serveKey=false){
  }
  const candidates=controlledPlayers(control);if(!candidates.length)return;
  const p=[...candidates].sort((a,b)=>distance(a,game.ball)-distance(b,game.ball))[0];
- // F/Enter are easy-to-use context shots: normal return on the ground, spike while airborne.
- if(type==="auto")type=(p.jumpHeight>12||p.jumpVelocity>0)?"spike":"normal";
+ // Context-sensitive hit: rising jump = lob, falling jump = spike, grounded = normal.
+ if(type==="auto"){
+  const rising=p.jumpVelocity>18;
+  const airborne=p.jumpHeight>12;
+  type=rising?"lob":airborne?"spike":"normal";
+ }
  // One hit per side per crossing. The receiver must let a serve bounce before returning it.
  if(b.side===team){document.getElementById("serveInfo").textContent="Wait for the other side to return the ball.";return;}
  if(b.isServe&&b.bounces===0){document.getElementById("serveInfo").textContent="Let the serve bounce before returning it.";return;}
@@ -1018,8 +1034,9 @@ function hitBall(p,type){
  b.side=p.team;b.lastHitter=p.control;b.bounces=0;b.isServe=false;b.toss=false;b.freezeTimer=0;b.bouncePower=bouncePower;b.curveAccelX=curveAccelX;b.curveTime=curveTime;
  const shotColors={speedyShot:"#63e8ff",softTouch:"#a9d8ff",steadyAim:"#b9ff68",quickServe:"#fff06a",featherLob:"#62e8ff",moonBall:"#7dd5ff",curveLite:"#78ffd5",curveShot:"#6ce8ff",sidewinder:"#cf8cff",mirrorReturn:"#ce9aff",shadowRally:"#f07cff",ultimateSpin:"#ffce69",meteorSmash:"#ff814d",chronoBreak:"#ff62d2",solarFlare:"#ff9a3d",cometShot:"#e1f5ff",thunderServe:"#fff27b",gravityWell:"#a98aff"};
  b.trailColor=godly==="sunGod"?"#ff5d38":godly==="honoredOne"?"#f4f7ff":isSpike?"#ffdc67":isLob?"#62e8ff":(shotColors[effect]||"#b9ff68");b.trailUntil=performance.now()+850;
- p.hitCooldown=recovery;p.swingCooldown=recovery;p.flash=isSpike?.28:.15;
- if(isSpike){p.flash=.38;game.pointText="SPIKE!";game.messageTimer=.45;}
+ p.hitCooldown=recovery;p.swingCooldown=recovery;p.flash=(isSpike||isLob)?.28:.15;
+ if(isSpike){p.flash=.38;game.pointText="SPIKE!";game.messageTimer=.55;}
+ else if(isLob){p.flash=.3;game.pointText="LOB!";game.messageTimer=.55;}
  updateAbilityStatus();
 }
 
@@ -1121,10 +1138,10 @@ function update(dt){
   const isServer=p.team===g.serveTeam&&p.control===g.serveControl&&!g.ball.inPlay&&(g.serveState==="ready"||g.serveState==="tossed");
   if(p.bot){if(!isServer)botUpdate(p,dt);else clampPlayerToHalfForServe(p);continue;}
   if(isServer)continue; // Server stays behind the baseline during the toss.
-  const c=controlsFor(p),inputMag=Math.hypot(c.x,c.y),mag=inputMag||1,sprint=c.sprint?1.60:1;
+  const c=controlsFor(p),inputMag=Math.hypot(c.x,c.y),mag=inputMag||1;
   if(inputMag>0){const ix=c.x/inputMag,iy=c.y/inputMag;p.aimX=clamp(p.aimX*.35+ix*.65,-1,1);p.aimY=clamp(p.aimY*.35+iy*.65,-1,1);}
   else{const aimDecay=Math.exp(-dt*2.8);p.aimX*=aimDecay;p.aimY*=aimDecay;}
-  const speed=p.baseSpeed*(p.godlyEffect==="sunGod"?2.35:p.godlyEffect==="honoredOne"?2.05:p.boost>0?Math.max(1.42,p.boostMultiplier||1.42):1)*sprint;
+  const speed=p.baseSpeed*1.60*(p.godlyEffect==="sunGod"?2.35:p.godlyEffect==="honoredOne"?2.05:p.boost>0?Math.max(1.42,p.boostMultiplier||1.42):1);
   if(p.dashTime>0){p.x+=p.dashVX*dt;p.y+=p.dashVY*dt;}else{p.x+=c.x/mag*speed*dt;p.y+=c.y/mag*speed*dt;}
   clampPlayerToHalf(p);
  }
@@ -1216,7 +1233,7 @@ function draw(){
    else if(p.bot&&!p.clone&&g.diff==="hard"){ctx.fillStyle="#ffb2b8";ctx.beginPath();ctx.moveTo(p.x-9,drawY-p.r+1);ctx.lineTo(p.x-5,drawY-p.r-7);ctx.lineTo(p.x-1,drawY-p.r+1);ctx.moveTo(p.x+1,drawY-p.r+1);ctx.lineTo(p.x+5,drawY-p.r-7);ctx.lineTo(p.x+9,drawY-p.r+1);ctx.fill();}
   }
   ctx.fillStyle=p.isVerity?"#fff04a":"#f4fbff";ctx.font=p.isVerity?"900 10px monospace":"bold 11px system-ui";ctx.textAlign="center";ctx.fillText(p.bot?(p.botName||"BOT"):p.control==="p1"?"P1":p.control==="p2"?"P2":p.control==="p1b"?"P1-2":p.control==="p2b"?"P2-2":"BOT",p.x,drawY-23);
-  if(p.activeShot){ctx.fillStyle="#fff";ctx.font="10px system-ui";ctx.fillText("✦ charged",p.x,drawY+30);}if(p.jumpHeight>12){ctx.fillStyle="#fff2ad";ctx.font="bold 9px system-ui";ctx.fillText("JUMP SPIKE",p.x,drawY+35);}if(p.dashCooldown>0){ctx.fillStyle="#d2e5ef";ctx.font="9px system-ui";ctx.fillText("dash "+p.dashCooldown.toFixed(1),p.x,drawY+42);}if(p.godlyTimer>0){ctx.fillStyle="#fff2ad";ctx.font="bold 9px system-ui";ctx.fillText(p.godlyEffect==="sunGod"?"SUN POWER":"HONORED",p.x,drawY+53);}ctx.restore();
+  if(p.activeShot){ctx.fillStyle="#fff";ctx.font="10px system-ui";ctx.fillText("✦ charged",p.x,drawY+30);}if(p.jumpHeight>12){ctx.fillStyle="#fff2ad";ctx.font="bold 9px system-ui";ctx.fillText(p.jumpVelocity>18?"JUMP LOB":"JUMP SPIKE",p.x,drawY+35);}if(p.dashCooldown>0){ctx.fillStyle="#d2e5ef";ctx.font="9px system-ui";ctx.fillText("dash "+p.dashCooldown.toFixed(1),p.x,drawY+42);}if(p.godlyTimer>0){ctx.fillStyle="#fff2ad";ctx.font="bold 9px system-ui";ctx.fillText(p.godlyEffect==="sunGod"?"SUN POWER":"HONORED",p.x,drawY+53);}ctx.restore();
  }
  const b=g.ball;
  if(b.inPlay&&b.side!=="A"&&b.y>=netY&&!(b.isServe&&b.bounces===0)&&g.players.some(p=>!p.bot&&p.team==="A"&&Math.abs(p.x-b.x)<=78&&Math.abs(p.y-b.y)<=76&&p.swingCooldown<=0&&p.hitCooldown<=0)){
@@ -1237,7 +1254,7 @@ function draw(){
   ctx.save();ctx.textAlign="center";ctx.font="900 12px monospace";ctx.fillStyle="#fff04a";ctx.shadowColor="#ff32e2";ctx.shadowBlur=8;
   const boss=g.players.find(p=>p.isVerity);if(boss)ctx.fillText((g.verityMad?"ANGRY  //  ":"WATCHING  //  ")+(g.verityStatusText||"WATCHING"),boss.x,Math.max(court.y+14,boss.y-48));ctx.restore();
  }
- if(!b.inPlay&&!g.matchOver){ctx.fillStyle="#ffffffd8";ctx.font="bold 13px system-ui";ctx.textAlign="center";const botServing=g.players.some(p=>p.control===g.serveControl&&p.bot);const label=g.serveState==="tossed"?(botServing?"BOT TOSSING":"HIT THE TOSSED BALL"):(botServing?"BOT PREPARING TO SERVE":(g.serveAttempt===1?"FIRST SERVE: PRESS TO TOSS":"SECOND SERVE: PRESS TO TOSS"));ctx.fillText(label,480,g.serveTeam==="A"?court.y+court.h-67:court.y+67);}
+ if(!b.inPlay&&!g.matchOver){ctx.fillStyle="#ffffffd8";ctx.font="bold 13px system-ui";ctx.textAlign="center";const botServing=g.players.some(p=>p.control===g.serveControl&&p.bot);const humanServeKey=game.serveControl==="p1"?"F":game.serveControl==="p2"?"?":"HIT";const label=g.serveState==="tossed"?(botServing?"BOT TOSSING":`HOLD ${humanServeKey} TO CHARGE · RELEASE TO SERVE`):(botServing?"BOT PREPARING TO SERVE":`PRESS ${humanServeKey} TO SERVE`);ctx.fillText(label,480,g.serveTeam==="A"?court.y+court.h-67:court.y+67);}
 
 
  // Serve aiming and power meter: a compact, seamless green-to-red arrow.
